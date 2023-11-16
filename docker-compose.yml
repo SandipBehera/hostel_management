@@ -3,7 +3,7 @@ version: "3.8"
 services:
   # MySQL service
   db:
-    image: mysql:latest
+    image: mysql
     environment:
       MYSQL_ROOT_PASSWORD: Mkloid@2023@#
       MYSQL_DATABASE: hostel_management
