@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  # MySQL service
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Mkloid@2023@#
+      MYSQL_DATABASE: hostel_management
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Mkloid@2023@#
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+
+  # Node.js service
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile-nodejs
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  # phpMyAdmin service
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
