@@ -1,6 +1,7 @@
 const Express = require("express");
 const BodyParser = require("body-parser");
 const cors = require("cors");
+require("dotenv").config();
 const userController = require("./controllers/user.ctrl");
 const foodyController = require("./controllers/foody.ctrl");
 
@@ -13,6 +14,10 @@ app.use(cors({ origin: "*" }));
 app.post("/login", userController.login);
 app.post("/food_booking", foodyController.book);
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+process.env.NODE_ENV === "production"
+  ? (PORT = process.env.PROD_PORT)
+  : (PORT = process.env.DEV_PORT);
+
+app.listen(PORT, () => {
+  console.log(`App running on ${process.env.NODE_ENV} port ${PORT}.`);
 });

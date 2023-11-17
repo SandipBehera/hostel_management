@@ -1,10 +1,10 @@
 const sql = require("mysql");
 
 const connection = sql.createConnection({
-  host: "localhost",
-  user: "hostel",
-  password: "Mkloid@2023@#",
-  database: "hostel_management",
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
 });
 
 connection.connect((err) => {
