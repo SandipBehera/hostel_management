@@ -6,5 +6,6 @@ const foodyController = require("../controllers/foody.ctrl");
 
 router.post("/login", userController.login);
 router.post("/food_booking", foodyController.book);
+router.post("/checkcode", foodyController.checkCode);
 
 module.exports = router;

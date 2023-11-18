@@ -42,6 +42,39 @@ const fetchdataById = (regd_no) => {
     );
   });
 };
+const fetchUerData = (regd_no) => {
+  return new Promise((resolve, reject) => {
+    connect.query(
+      `SELECT * FROM users WHERE regd_no = '${regd_no}'`,
+      (err, result) => {
+        if (err) {
+          console.log("error is", err);
+          const data = {
+            result: err,
+            status: false,
+          };
+          reject(data);
+        } else {
+          if (result.length > 0) {
+            const data = {
+              result: result,
+              status: true,
+            };
+            console.log(data);
+            resolve(data);
+          } else {
+            const data = {
+              result: result,
+              status: false,
+            };
+            console.log(data);
+            resolve(data);
+          }
+        }
+      }
+    );
+  });
+};
 exports.book = async (req, res) => {
   const { regd_no, meal_type } = req.body;
   const date = new Date().toLocaleDateString("en-CA", {
@@ -92,4 +125,27 @@ exports.book = async (req, res) => {
     console.log(err);
     res.send({ message: "Error", status: "error" });
   }
+};
+
+exports.checkCode = (req, res) => {
+  const { auth_code } = req.body;
+  const date = new Date().toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const query = `SELECT * FROM food_booking WHERE auth_code = '${auth_code}' AND date = '${date}'`;
+  connect.query(query, (err, result) => {
+    if (err) throw err;
+    if (result.length > 0) {
+      const user_details = fetchUerData(result[0].regd_no);
+      res.send({
+        message: "Code Matched",
+        status: "success",
+        data: user_details,
+      });
+    } else {
+      res.send({ message: "Code Not Matched", status: "error" });
+    }
+  });
 };
