@@ -29,4 +29,10 @@ router.post("/assign_rooms", roomController.Assign_rooms);
 router.post("/get_student_by_room", roomController.Get_Student_By_Room);
 router.post("/mark_attendance", roomController.Take_Attendance);
 
+//food menu
+router.post("/create_food_menu", foodyController.create_food_menu);
+router.get("/get_last_menu", foodyController.get_last_menu);
+router.get("/get_all_menu", foodyController.get_all_menu);
+router.get("/today_booking", foodyController.today_bookings);
+
 module.exports = router;

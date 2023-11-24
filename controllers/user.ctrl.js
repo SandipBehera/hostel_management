@@ -44,7 +44,7 @@ exports.web_login = (req, res) => {
             user_id: user_id,
             name: name,
             is_logged_in: is_logged_in,
-            uset_type: userType,
+            user_type: userType,
           },
           message: "Login Successfull",
           status: "success",

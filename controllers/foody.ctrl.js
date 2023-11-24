@@ -171,3 +171,57 @@ exports.checkCode = async (req, res) => {
     }
   });
 };
+
+exports.create_food_menu = (req, res) => {
+  const { month, year, food_menu } = req.body;
+  console.log(food_menu);
+  const query = `INSERT INTO food_menu (month, year, menu_data) VALUES ('${month}', '${year}', '${food_menu}')`;
+  connect.query(query, (err, result) => {
+    if (err) throw err;
+    res.send({
+      message: "Food Menu Created",
+      status: "success",
+    });
+  });
+};
+
+exports.get_last_menu = (req, res) => {
+  const query = `SELECT * FROM food_menu ORDER BY id DESC LIMIT 1`;
+  connect.query(query, (err, result) => {
+    if (err) throw err;
+    res.send({
+      message: "Food Menu Fetched",
+      status: "success",
+      data: result[0],
+    });
+  });
+};
+
+exports.get_all_menu = (req, res) => {
+  const query = `SELECT * FROM food_menu`;
+  connect.query(query, (err, result) => {
+    if (err) throw err;
+    res.send({
+      message: "All Food Menu Fetched",
+      status: "success",
+      data: result,
+    });
+  });
+};
+
+exports.today_bookings = (req, res) => {
+  const date = new Date().toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const query = `SELECT * FROM food_booking WHERE date = '${date}'`;
+  connect.query(query, (err, result) => {
+    if (err) throw err;
+    res.send({
+      message: "Today Bookings Fetched",
+      status: "success",
+      data: result,
+    });
+  });
+};
