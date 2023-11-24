@@ -45,7 +45,7 @@ const fetchdataById = (regd_no) => {
 const fetchUerData = (regd_no) => {
   return new Promise((resolve, reject) => {
     connect.query(
-      `SELECT * FROM users WHERE regd_no = '${regd_no}'`,
+      `SELECT * FROM users WHERE username = '${regd_no}'`,
       (err, result) => {
         if (err) {
           console.log("error is", err);
@@ -126,8 +126,29 @@ exports.book = async (req, res) => {
     res.send({ message: "Error", status: "error" });
   }
 };
+exports.getCodes = async (req, res) => {
+  const { regd_no } = req.body;
+  const date = new Date().toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const query = `SELECT * FROM food_booking WHERE regd_no = '${regd_no}' AND date = '${date}'`;
+  connect.query(query, async (err, result) => {
+    if (err) throw err;
+    if (result.length > 0) {
+      console.log(result[0].regd_no);
+      res.send({
+        status: "success",
+        data: result[0],
+      });
+    } else {
+      res.send({ message: "Code Not Matched", status: "error" });
+    }
+  });
+};
 
-exports.checkCode = (req, res) => {
+exports.checkCode = async (req, res) => {
   const { auth_code } = req.body;
   const date = new Date().toLocaleDateString("en-CA", {
     year: "numeric",
@@ -135,10 +156,11 @@ exports.checkCode = (req, res) => {
     day: "2-digit",
   });
   const query = `SELECT * FROM food_booking WHERE auth_code = '${auth_code}' AND date = '${date}'`;
-  connect.query(query, (err, result) => {
+  connect.query(query, async (err, result) => {
     if (err) throw err;
     if (result.length > 0) {
-      const user_details = fetchUerData(result[0].regd_no);
+      console.log(result[0].regd_no);
+      const user_details = await fetchUerData(result[0].regd_no);
       res.send({
         message: "Code Matched",
         status: "success",
