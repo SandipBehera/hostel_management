@@ -74,3 +74,20 @@ exports.Take_Attendance = (req, res) => {
     }
   });
 };
+
+exports.Today_Attendance = (req, res) => {
+  const { hostel_id } = req.body;
+  const query = `SELECT users.* FROM users INNER JOIN student_attandance ON users.username = student_attandance.user_id WHERE student_attandance.hostel_name = '${hostel_id}' AND DATE(student_attandance.created_at) = CURDATE()`;
+  connection.query(query, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.send({ message: "Error fetching rooms", status: "error" });
+    } else {
+      res.send({
+        message: "Rooms fetched successfully",
+        status: "success",
+        data: result,
+      });
+    }
+  });
+};
