@@ -1,3 +1,4 @@
+const DateGenerator = require("../hooks/date");
 const connect = require("../utils/database");
 
 const fetchdataById = (regd_no) => {
@@ -77,11 +78,7 @@ const fetchUerData = (regd_no) => {
 };
 exports.book = async (req, res) => {
   const { regd_no, meal_type } = req.body;
-  const date = new Date().toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const date = DateGenerator();
   const time = Date().slice(16, 21);
   const auth_code = Math.floor(Math.random() * 1000000);
 
@@ -128,11 +125,7 @@ exports.book = async (req, res) => {
 };
 exports.getCodes = async (req, res) => {
   const { regd_no } = req.body;
-  const date = new Date().toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const date = DateGenerator();
   const query = `SELECT * FROM food_booking WHERE regd_no = '${regd_no}' AND date = '${date}'`;
   connect.query(query, async (err, result) => {
     if (err) throw err;
@@ -150,11 +143,7 @@ exports.getCodes = async (req, res) => {
 
 exports.checkCode = async (req, res) => {
   const { auth_code } = req.body;
-  const date = new Date().toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const date = DateGenerator();
   const query = `SELECT * FROM food_booking WHERE auth_code = '${auth_code}' AND date = '${date}'`;
   connect.query(query, async (err, result) => {
     if (err) throw err;
@@ -210,11 +199,7 @@ exports.get_all_menu = (req, res) => {
 };
 
 exports.today_bookings = (req, res) => {
-  const date = new Date().toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const date = DateGenerator();
   const query = `SELECT * FROM food_booking WHERE date = '${date}'`;
   connect.query(query, (err, result) => {
     if (err) throw err;

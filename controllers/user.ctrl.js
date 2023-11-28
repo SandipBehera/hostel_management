@@ -1,4 +1,5 @@
 const connection = require("../utils/database");
+const DateGenerator = require("../hooks/date");
 
 exports.login = (req, res) => {
   console.log(req.body);
@@ -58,11 +59,7 @@ exports.web_login = (req, res) => {
 exports.users = (req, res) => {
   const { userId } = req.params;
   console.log(userId);
-  const date = new Date().toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const date = DateGenerator();
   console.log(date);
   connection.query(
     `SELECT * FROM logged_in_user where user_id='${userId}' AND date ='${date}' `,
@@ -160,11 +157,7 @@ exports.getAllUser = (req, res) => {
 
 exports.logout = (req, res) => {
   const { user_id } = req.body;
-  const date = new Date().toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const date = DateGenerator();
   connection.query(
     `update logged_in_user set is_logged_in='0' where user_id='${user_id}' AND date ='${date}' `,
     (err, result) => {
