@@ -2,22 +2,10 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND noninteractive
 # Install dependencies
 RUN apt-get update && \
-    apt-get install -y curl git && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y curl git 
 
-# Install NVM
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-
-# Use NVM in the shell
-SHELL ["/bin/bash", "-c"]
-
-# Install Node.js 18 and set it as default
-RUN source ~/.nvm/nvm.sh && \
-    nvm install 18 && \
-    nvm alias default 18
-
-# Verify installation
-RUN node -v && npm -v
+# Install Node.js
+FROM Node:18.04
 
 # Set the working directory in the container
 WORKDIR /app
