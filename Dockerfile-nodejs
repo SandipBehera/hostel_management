@@ -5,7 +5,7 @@ RUN apt-get update && \
     apt-get install -y curl git 
 
 # Install Node.js
-FROM Node:18.04
+FROM node:18.04
 
 # Set the working directory in the container
 WORKDIR /app
