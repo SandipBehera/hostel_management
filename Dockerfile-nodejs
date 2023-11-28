@@ -1,10 +1,7 @@
-FROM node:18-stretch
+FROM node:18-alpine
 
 # Set the working directory in the container
 WORKDIR /app
-
-# Install dependencies
-RUN apt-get update && apt-get install -y curl git
 
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
