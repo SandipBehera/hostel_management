@@ -4,8 +4,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Install dependencies
-RUN apt-get update && \
-    apt-get install -y curl git
+RUN apt-get update && apt-get install -y curl git
 
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
