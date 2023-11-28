@@ -23,15 +23,3 @@ services:
     ports:
       - "3000:3000"
     network_mode: bridge
-
-  # phpMyAdmin service
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-    ports:
-      - "8080:80"
-    depends_on:
-      - db
-    network_mode: bridge
