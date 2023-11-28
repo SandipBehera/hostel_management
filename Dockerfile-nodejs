@@ -1,11 +1,8 @@
-FROM amazonlinux:2
+FROM node:18-alpine3.18
 
-# Update the package index and install Git
-RUN yum update -y && \
-    yum install -y git
-
-# Install Node.js (adjust version if needed)
-RUN amazon-linux-extras install -y nodejs18
+# Install Git
+RUN apt-get update && \
+    apt-get install -y git
 
 # Set the working directory in the container
 WORKDIR /app
