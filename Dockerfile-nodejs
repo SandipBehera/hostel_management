@@ -1,14 +1,11 @@
-FROM ubuntu:22.04
-ENV DEBIAN_FRONTEND noninteractive
-# Install dependencies
-RUN apt-get update && \
-    apt-get install -y curl git 
-
-# Install Node.js
 FROM node:18.04
 
 # Set the working directory in the container
 WORKDIR /app
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y curl git
 
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
@@ -24,3 +21,4 @@ EXPOSE 3000
 
 # Command to run your Node.js application
 CMD ["npm", "start"]
+
