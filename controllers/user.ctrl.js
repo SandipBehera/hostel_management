@@ -57,11 +57,13 @@ exports.web_login = (req, res) => {
 };
 exports.users = (req, res) => {
   const { userId } = req.params;
+  console.log(userId);
   const date = new Date().toLocaleDateString("en-CA", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
+  console.log(date);
   connection.query(
     `SELECT * FROM logged_in_user where user_id='${userId}' AND date ='${date}' `,
     (err, result) => {
