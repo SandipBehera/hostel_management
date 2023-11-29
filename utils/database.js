@@ -6,13 +6,9 @@ const connection = sql.createConnection({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
 });
-try {
-  connection.connect((err) => {
-    if (err) throw err;
-    console.log("Connected!");
-  });
-} finally {
-  connection.end();
-}
+connection.connect((err) => {
+  if (err) throw err;
+  console.log("Connected!");
+});
 
 module.exports = connection;
