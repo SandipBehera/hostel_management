@@ -41,7 +41,6 @@ const fetchdataById = (regd_no) => {
         }
       }
     );
-    connect.end();
   });
 };
 const fetchUerData = (regd_no) => {
@@ -142,7 +141,6 @@ exports.getCodes = async (req, res) => {
       res.send({ message: "Code Not Matched", status: "error" });
     }
   });
-  connect.end();
 };
 
 exports.checkCode = async (req, res) => {
@@ -163,7 +161,6 @@ exports.checkCode = async (req, res) => {
       res.send({ message: "Code Not Matched", status: "error" });
     }
   });
-  connect.end();
 };
 
 exports.create_food_menu = (req, res) => {
@@ -177,7 +174,6 @@ exports.create_food_menu = (req, res) => {
       status: "success",
     });
   });
-  connect.end();
 };
 
 exports.get_last_menu = (req, res) => {
@@ -190,7 +186,6 @@ exports.get_last_menu = (req, res) => {
       data: result[0],
     });
   });
-  connect.end();
 };
 
 exports.get_all_menu = (req, res) => {
@@ -203,7 +198,6 @@ exports.get_all_menu = (req, res) => {
       data: result,
     });
   });
-  connect.end();
 };
 
 exports.today_bookings = (req, res) => {
@@ -217,5 +211,4 @@ exports.today_bookings = (req, res) => {
       data: result,
     });
   });
-  connect.end();
 };

@@ -12,7 +12,6 @@ exports.create_rooms = (req, res) => {
       res.send({ message: "Rooms created successfully", status: "success" });
     }
   });
-  connection.end();
 };
 
 exports.getRooms = (req, res) => {
@@ -28,7 +27,6 @@ exports.getRooms = (req, res) => {
       });
     }
   });
-  connection.end();
 };
 
 exports.Assign_rooms = (req, res) => {
@@ -43,7 +41,6 @@ exports.Assign_rooms = (req, res) => {
       res.send({ message: "Rooms Assigned successfully", status: "success" });
     }
   });
-  connection.end();
 };
 
 exports.Get_Student_By_Room = (req, res) => {
@@ -61,7 +58,6 @@ exports.Get_Student_By_Room = (req, res) => {
       });
     }
   });
-  connection.end();
 };
 
 exports.Take_Attendance = (req, res) => {
@@ -77,7 +73,6 @@ exports.Take_Attendance = (req, res) => {
       res.send({ message: "Attendance Taken successfully", status: "success" });
     }
   });
-  connection.end();
 };
 
 exports.Today_Attendance = (req, res) => {
@@ -95,5 +90,4 @@ exports.Today_Attendance = (req, res) => {
       });
     }
   });
-  connection.end();
 };

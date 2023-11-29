@@ -26,7 +26,6 @@ exports.login = (req, res) => {
       }
     }
   );
-  connection.end();
 };
 exports.web_login = (req, res) => {
   console.log(req.body);
@@ -56,7 +55,6 @@ exports.web_login = (req, res) => {
       }
     }
   );
-  connection.end();
 };
 exports.users = (req, res) => {
   const { userId } = req.params;
@@ -78,7 +76,6 @@ exports.users = (req, res) => {
       }
     }
   );
-  connection.end();
 };
 
 exports.Hostel_Onboard_Request = (req, res) => {
@@ -132,7 +129,6 @@ exports.Hostel_Onboard_Request = (req, res) => {
       }
     }
   );
-  connection.end();
 };
 
 exports.getAllUser = (req, res) => {
@@ -157,7 +153,6 @@ exports.getAllUser = (req, res) => {
       }
     }
   );
-  connection.end();
 };
 
 exports.logout = (req, res) => {
@@ -178,5 +173,4 @@ exports.logout = (req, res) => {
       }
     }
   );
-  connection.end();
 };
