@@ -1,21 +1,27 @@
 const Express = require("express");
 const BodyParser = require("body-parser");
 const cors = require("cors");
+const Http = require("http");
+const { initializeSocket } = require("./socket/socket");
+
 require("dotenv").config();
 
 const app = Express();
-const MasterRouter = require("./utils/routes"); // <== import the router from routes.js
+const server = Http.createServer(app);
+initializeSocket(server);
+
+const MasterRouter = require("./utils/routes");
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));
 
-app.use(cors({ origin: "*" }));
+app.use(cors());
 
-app.use("/api", MasterRouter); // <== use the router here
+app.use("/api", MasterRouter);
 
 process.env.NODE_ENV === "production"
   ? (PORT = process.env.PROD_PORT)
   : (PORT = process.env.DEV_PORT);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`App running on ${process.env.NODE_ENV} port ${PORT}.`);
 });

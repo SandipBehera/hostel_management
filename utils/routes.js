@@ -4,6 +4,7 @@ const router = Express.Router();
 const userController = require("../controllers/user.ctrl");
 const foodyController = require("../controllers/foody.ctrl");
 const roomController = require("../controllers/room.ctrl");
+const complaintsController = require("../controllers/complaints.ctrl");
 //app Routes
 router.post("/login", userController.login);
 
@@ -35,5 +36,9 @@ router.post("/create_food_menu", foodyController.create_food_menu);
 router.get("/get_last_menu", foodyController.get_last_menu);
 router.get("/get_all_menu", foodyController.get_all_menu);
 router.get("/today_booking", foodyController.today_bookings);
+
+//complaints
+router.post("/create_complaint", complaintsController.create_complaint);
+router.get("/get_complaints", complaintsController.get_complaints);
 
 module.exports = router;
