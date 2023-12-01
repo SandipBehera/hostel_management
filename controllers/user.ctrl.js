@@ -31,29 +31,36 @@ exports.login = (req, res) => {
 exports.web_login = (req, res) => {
   console.log(req.body);
   const { user_id, name, date, userType, is_logged_in } = req.body;
-
+  const query = `
+  INSERT INTO logged_in_user (user_id, name, date, user_type, is_logged_in)
+  VALUES (?, ?, ?, ?, ?)`;
   connection.query(
-    `Insert into logged_in_user (user_id,
-    name,
-    date,
-    user_type,
-    is_logged_in) values ('${user_id}','${name}','${date}','${userType}','${is_logged_in}')`,
+    query,
+    [user_id, name, date, userType, is_logged_in, user_id],
     (err, result) => {
       if (err) throw err;
-      if (result) {
-        res.send({
-          data: {
-            user_id: user_id,
-            name: name,
-            is_logged_in: is_logged_in,
-            user_type: userType,
-          },
-          message: "Login Successfull",
-          status: "success",
-        });
-      } else {
-        res.send({ message: "Invalid Credentials", staus: "error" });
-      }
+      connection.query(
+        "SELECT username, name, user_type, roles FROM users WHERE username = ?",
+        [user_id],
+        (err, result) => {
+          if (err) throw err;
+          if (result) {
+            res.send({
+              data: {
+                roles: result[0].roles.data.role,
+                user_id: user_id,
+                name: name,
+                is_logged_in: is_logged_in,
+                user_type: userType,
+              },
+              message: "Login Successfull",
+              status: "success",
+            });
+          } else {
+            res.send({ message: "Invalid Credentials", staus: "error" });
+          }
+        }
+      );
     }
   );
 };
@@ -63,7 +70,9 @@ exports.users = (req, res) => {
   const date = DateGenerator();
   console.log(date);
   connection.query(
-    `SELECT * FROM logged_in_user where user_id='${userId}' AND date ='${date}' `,
+    `SELECT logged_in_user.*, users.* FROM logged_in_user 
+    INNER JOIN users ON logged_in_user.user_id = users.username
+    where user_id='${userId}' AND date ='${date}' `,
     (err, result) => {
       if (err) throw err;
       if (result.length > 0) {
@@ -91,6 +100,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
     branch,
     userType,
     image,
+    role,
   } = req.body;
   connection.query(
     `Insert into users (
@@ -102,9 +112,10 @@ exports.Hostel_Onboard_Request = (req, res) => {
     branch,
     user_type,
     user_from,
-    image )
+    image,
+    role )
     values(
-      '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}'
+      '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${role}'
     )
   `,
     (err, result) => {
@@ -120,6 +131,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
           branch,
           userType,
           image,
+          role,
         });
         res.send({
           data: {
@@ -129,7 +141,40 @@ exports.Hostel_Onboard_Request = (req, res) => {
             phone: userPhone,
             user_type: userType,
             user_name: userId,
+            role: role,
           },
+          message: "User Added Successfull",
+          status: "success",
+        });
+      } else {
+        res.send({ message: "Something Wrong Happened", staus: "error" });
+      }
+    }
+  );
+};
+
+exports.hostel_employee = (req, res) => {
+  const { user_id, name, email, phone, image, role } = req.body;
+  console.log(req.body);
+  connection.query(
+    `Insert into users (
+    username,
+    name,
+    email,
+    phone,
+    user_type,
+    user_from,
+    image,
+    roles )
+    values(
+      '${user_id}','${name}','${email}','${phone}',"empolyee","hostel",'${image}','${role}'
+    )
+  `,
+    (err, result) => {
+      if (err) throw err;
+      if (result) {
+        const users_data = users();
+        res.send({
           message: "User Added Successfull",
           status: "success",
         });
