@@ -77,16 +77,49 @@ exports.Take_Attendance = (req, res) => {
 
 exports.Today_Attendance = (req, res) => {
   const { hostel_id } = req.body;
-  const query = `SELECT users.* FROM users INNER JOIN student_attandance ON users.username = student_attandance.user_id WHERE student_attandance.hostel_name = '${hostel_id}' AND DATE(student_attandance.created_at) = CURDATE()`;
+  // const query = `SELECT users.* FROM users INNER JOIN student_attandance ON users.username = student_attandance.user_id INNER JOIN rooms ON rooms.id = student_attandance.hostel_name WHERE student_attandance.hostel_name = '${hostel_id}' AND DATE(student_attandance.created_at) = CURDATE()`;
+  const query = `SELECT
+  users.*,
+  student_attandance.*,
+  rooms.hostel_name,
+  user_room_assign.room_id
+
+FROM
+  users
+INNER JOIN
+  student_attandance ON users.username = student_attandance.user_id
+INNER JOIN
+  rooms ON rooms.id = student_attandance.hostel_name
+INNER JOIN
+  user_room_assign ON user_room_assign.user_id = student_attandance.user_id
+WHERE
+  student_attandance.hostel_name = '${hostel_id}'
+  AND DATE(student_attandance.created_at) = CURDATE();`;
   connection.query(query, (err, result) => {
     if (err) {
       console.log(err);
       res.send({ message: "Error fetching rooms", status: "error" });
     } else {
       res.send({
-        message: "Rooms fetched successfully",
+        message: "Attandence fetched successfully",
         status: "success",
         data: result,
+      });
+    }
+  });
+};
+exports.updateAttandance = (req, res) => {
+  const { id, status, comments } = req.body;
+  console.log(req.body);
+  const query = `UPDATE student_attandance SET status = '${status}', comments = '${comments}' WHERE id = '${id}' AND DATE(created_at) = CURDATE()`;
+  connection.query(query, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.send({ message: "Error Updating Attendance", status: "error" });
+    } else {
+      res.send({
+        message: "Attendance Updated successfully",
+        status: "success",
       });
     }
   });

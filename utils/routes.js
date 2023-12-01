@@ -30,6 +30,7 @@ router.post("/assign_rooms", roomController.Assign_rooms);
 router.post("/get_student_by_room", roomController.Get_Student_By_Room);
 router.post("/mark_attendance", roomController.Take_Attendance);
 router.post("/get_attendence", roomController.Today_Attendance);
+router.post("/update_attendence", roomController.updateAttandance);
 
 //food menu
 router.post("/create_food_menu", foodyController.create_food_menu);
