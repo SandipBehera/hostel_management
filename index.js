@@ -14,7 +14,7 @@ const MasterRouter = require("./utils/routes");
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 app.use("/api", MasterRouter);
 
