@@ -3,7 +3,6 @@ const { getIO } = require("../socket/socket");
 
 exports.create_complaint = (req, res) => {
   const io = getIO(); // Get the io instance from the socket.js file
-  console.log(io); // Check if io is defined
 
   const {
     issue_type,
