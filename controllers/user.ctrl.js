@@ -1,5 +1,6 @@
 const connection = require("../utils/database");
 const DateGenerator = require("../hooks/date");
+const { getIO } = require("../socket/socket");
 
 exports.login = (req, res) => {
   console.log(req.body);
@@ -79,6 +80,7 @@ exports.users = (req, res) => {
 };
 
 exports.Hostel_Onboard_Request = (req, res) => {
+  const io = getIO(); // Get the io instance from the socket.js file
   console.log(req.body);
   const {
     userId,
@@ -90,7 +92,6 @@ exports.Hostel_Onboard_Request = (req, res) => {
     userType,
     image,
   } = req.body;
-  const password = "temp1234";
   connection.query(
     `Insert into users (
     username,
@@ -105,13 +106,22 @@ exports.Hostel_Onboard_Request = (req, res) => {
     image )
     values(
       '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${password}','${userType}','hostel','${image}'
-
-
     )
   `,
     (err, result) => {
       if (err) throw err;
       if (result) {
+        // Emit the event inside the connection handler
+        io.emit("newUserOnBoard", {
+          userId,
+          userName,
+          userEmail,
+          userPhone,
+          semesterYear,
+          branch,
+          userType,
+          image,
+        });
         res.send({
           data: {
             user_id: userId,
