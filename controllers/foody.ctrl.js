@@ -78,10 +78,10 @@ const fetchUerData = (regd_no) => {
   });
 };
 exports.book = async (req, res) => {
-  const { regd_no, meal_type } = req.body;
+  const { regd_no, meal_type, auth_code } = req.body;
   const date = DateGenerator();
   const time = Date().slice(16, 21);
-  const auth_code = Math.floor(Math.random() * 1000000);
+  // const auth_code = Math.floor(Math.random() * 1000000);
 
   try {
     let studentData = await fetchdataById(regd_no);
