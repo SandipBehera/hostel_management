@@ -36,7 +36,8 @@ exports.get_outing = (req, res) => {
 };
 
 exports.approve_outing = (req, res) => {
-  const { id, status } = req.params;
+  const { id } = req.params;
+  const { status } = req.body;
   connection.query(
     `UPDATE outing SET status = '${status}' WHERE id = ?`,
     [id],
