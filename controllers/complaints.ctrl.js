@@ -56,3 +56,43 @@ exports.get_complaints = (req, res) => {
     }
   });
 };
+exports.update_complaint = (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  connection.query(
+    `UPDATE complaints SET status = '${status}' WHERE id = ${id}`,
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.send({ message: "Error updating complaints", status: "error" });
+        return;
+      }
+
+      res.send({
+        message: "Complaints updated successfully",
+        status: "success",
+      });
+    }
+  );
+};
+exports.get_complaints_by_id = (req, res) => {
+  const { id } = req.params;
+
+  connection.query(
+    `SELECT * FROM complaints WHERE id = ${id}`,
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.send({ message: "Error fetching complaints", status: "error" });
+        return;
+      }
+
+      res.send({
+        message: "Complaints fetched successfully",
+        status: "success",
+        data: result,
+      });
+    }
+  );
+};
