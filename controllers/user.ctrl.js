@@ -115,7 +115,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
     image,
     role )
     values(
-      '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${role}'
+      '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}',''
     )
   `,
     (err, result) => {
