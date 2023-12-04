@@ -45,6 +45,10 @@ exports.web_login = (req, res) => {
         (err, result) => {
           if (err) throw err;
           if (result) {
+            if (result[0].roles === null) {
+              result[0].roles = { data: { role: "" } };
+            }
+
             res.send({
               data: {
                 roles: result[0].roles.data.role,
