@@ -9,6 +9,7 @@ const PatientController = require("../controllers/health.ctrl");
 const OutingController = require("../controllers/outing.ctrl");
 const EmployeeController = require("../controllers/employee.ctrl");
 const HostelConfigController = require("../controllers/hostelConfig.ctrl");
+const stockController = require("../controllers/stocks.ctrl");
 //app Routes
 router.post("/login", userController.login);
 
@@ -73,4 +74,9 @@ router.get(
   HostelConfigController.getConfigByType
 );
 
+//stock Managment
+router.post("/add_stock", stockController.addStock);
+router.post("/create_item", stockController.createItem);
+router.get("/get_items", stockController.getItems);
+router.get("/get_stock", stockController.getAllStocks);
 module.exports = router;
