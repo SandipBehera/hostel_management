@@ -3,7 +3,7 @@ const connection = require("../utils/database");
 const DateConvertor = require("../hooks/DateConvertor");
 
 exports.getEmployee = (req, res) => {
-  connection.query(`SELECT * FROM employee`, (err, result) => {
+  connection.query(`SELECT * FROM users_employee`, (err, result) => {
     if (err) throw err;
     if (result.length > 0) {
       res.send({
