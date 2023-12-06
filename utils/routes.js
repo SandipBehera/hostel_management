@@ -68,6 +68,9 @@ router.post("/addEmployee", EmployeeController.addEmployee);
 //Hostel Config
 router.get("/getAllConfigs", HostelConfigController.getAllConfigs);
 router.post("/addConfig", HostelConfigController.addConfig);
-router.get("/getConfigByType/:id", HostelConfigController.getConfigByType);
+router.get(
+  "/get_config_by_type/:config_type",
+  HostelConfigController.getConfigByType
+);
 
 module.exports = router;
