@@ -7,6 +7,7 @@ const roomController = require("../controllers/room.ctrl");
 const complaintsController = require("../controllers/complaints.ctrl");
 const PatientController = require("../controllers/health.ctrl");
 const OutingController = require("../controllers/outing.ctrl");
+const EmployeeController = require("../controllers/employee.ctrl");
 //app Routes
 router.post("/login", userController.login);
 
@@ -59,4 +60,7 @@ router.post("/add_outing", OutingController.add_outing);
 router.get("/get_outing", OutingController.get_outing);
 router.post("/approve_outing/:id", OutingController.approve_outing);
 
+//employee
+router.get("/getEmployee", EmployeeController.getEmployee);
+router.post("/addEmployee", EmployeeController.addEmployee);
 module.exports = router;

@@ -19,3 +19,5 @@ const DateGenerator = () => {
 };
 
 module.exports = DateGenerator;
+
+// Compare this snippet from backend/controllers/health.ctrl.js:
