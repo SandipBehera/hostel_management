@@ -1,9 +1,9 @@
 const connection = require("../utils/database");
 
 exports.create_rooms = (req, res) => {
-  const { hostel_name, floor_count, room_count, rooms, ammenities } = req.body;
+  const { hostel_name, floor_count, room_count, rooms } = req.body;
   console.log(rooms);
-  const query = `INSERT INTO rooms (hostel_name, floor_count, room_count, room_details, ammenities) VALUES ('${hostel_name}', '${floor_count}', '${room_count}', '${rooms}','${ammenities}')`;
+  const query = `INSERT INTO rooms (hostel_name, floor_count, room_count, room_details) VALUES ('${hostel_name}', '${floor_count}', '${room_count}', '${rooms}')`;
   connection.query(query, (err, result) => {
     if (err) {
       console.log(err);
