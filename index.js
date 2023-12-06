@@ -16,6 +16,7 @@ app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 app.use(cors({ origin: "*" }));
+app.use("/upload", Express.static("upload"));
 
 app.use("/api", MasterRouter);
 
