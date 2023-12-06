@@ -42,6 +42,7 @@ exports.addConfig = (req, res) => {
 
 exports.getConfigByType = (req, res) => {
   const { config_type } = req.params;
+  console.log(config_type);
   connection.query(
     `SELECT * FROM hostel_config where config_type='${config_type}'`,
     (err, result) => {
