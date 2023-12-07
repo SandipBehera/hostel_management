@@ -105,6 +105,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
     userType,
     image,
     role,
+    branch_id,
   } = req.body;
   connection.query(
     `Insert into users (
@@ -117,9 +118,11 @@ exports.Hostel_Onboard_Request = (req, res) => {
     user_type,
     user_from,
     image,
-    roles )
+    roles,
+    campus_branch
+    )
     values(
-      '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${role}'
+      '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${role}','${branch_id}'
     )
   `,
     (err, result) => {
@@ -136,6 +139,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
           userType,
           image,
           role,
+          branch_id,
         });
         res.send({
           data: {
@@ -146,6 +150,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
             user_type: userType,
             user_name: userId,
             role: role,
+            branchid: branch_id,
           },
           message: "User Added Successfull",
           status: "success",
