@@ -1,4 +1,5 @@
 const connection = require("../utils/database");
+const DateConvertor = require("../hooks/DateConvertor");
 
 exports.getAllStocks = (req, res) => {
   connection.query(`SELECT * FROM master_stock`, (err, result) => {
@@ -25,6 +26,7 @@ exports.addStock = (req, res) => {
     purchase_date,
   } = req.body;
   console.log(req.body);
+  const date = DateConvertor(purchase_date);
   connection.query(
     `INSERT INTO master_stock (
             item_name,
@@ -41,7 +43,7 @@ exports.addStock = (req, res) => {
             '${price_per}',
             '${total_price}',
             '${purchased_from}',
-            '${purchase_date}'
+            '${date}'
         )`,
     (err, result) => {
       if (err) throw err;
