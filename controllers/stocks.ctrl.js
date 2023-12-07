@@ -50,7 +50,7 @@ exports.addStock = (req, res) => {
       if (result) {
         res.send({
           data: result.insertId,
-          message: `${stock_name} Stock Added`,
+          message: `${item_name} Stock Added`,
           status: "success",
         });
       } else {
