@@ -26,6 +26,7 @@ router.get("/logout/:userId", userController.logout);
 router.post("/onboard_users", userController.Hostel_Onboard_Request);
 router.get("/get_all_users", userController.getAllUser);
 router.post("/employee_onboard", userController.hostel_employee);
+router.post("/profile_info", userController.profile_info);
 
 //room Management
 router.post("/create_rooms", roomController.create_rooms);

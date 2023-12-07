@@ -232,3 +232,25 @@ exports.logout = (req, res) => {
     }
   );
 };
+
+exports.profile_info = (req, res) => {
+  const { user_id } = req.body;
+  console.log(user_id);
+  connection.query(
+    `SELECT users.* , user_room_assign.room_id,rooms.hostel_name
+    FROM users
+    LEFT JOIN user_room_assign ON users.username = user_room_assign.user_id
+    LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where username='${user_id}'`,
+    (err, result) => {
+      if (err) throw err;
+      if (result.length > 0) {
+        res.send({
+          data: result[0],
+          status: "success",
+        });
+      } else {
+        res.send({ message: "Invalid Credentials", staus: "error" });
+      }
+    }
+  );
+};
