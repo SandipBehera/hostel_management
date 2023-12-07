@@ -32,11 +32,11 @@ exports.web_login = (req, res) => {
   console.log(req.body);
   const { user_id, name, date, userType, is_logged_in } = req.body;
   const query = `
-  INSERT INTO logged_in_user (user_id, name, date, user_type, is_logged_in)
+  INSERT INTO logged_in_user (user_id,  date, user_type, is_logged_in)
   VALUES (?, ?, ?, ?, ?)`;
   connection.query(
     query,
-    [user_id, name, date, userType, is_logged_in, user_id],
+    [user_id, date, userType, is_logged_in, user_id],
     (err, result) => {
       if (err) throw err;
       connection.query(
