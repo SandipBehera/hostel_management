@@ -31,42 +31,52 @@ exports.login = (req, res) => {
 exports.web_login = (req, res) => {
   console.log(req.body);
   const { user_id, name, date, userType, is_logged_in } = req.body;
-  const query = `
-  INSERT INTO logged_in_user (user_id,  date, user_type, is_logged_in)
-  VALUES (?, ?, ?, ?, ?)`;
-  connection.query(
-    query,
-    [user_id, date, userType, is_logged_in, user_id],
-    (err, result) => {
-      if (err) throw err;
-      connection.query(
-        "SELECT username, name, user_type, roles FROM users WHERE username = ?",
-        [user_id],
-        (err, result) => {
-          if (err) throw err;
-          if (result.length > 0) {
-            if (result[0].roles === null) {
-              result[0].roles = { data: { role: "" } };
+  if (userType === "student") {
+    connection.query(
+      `SELECT users.*, user_room_assign.room_id,rooms.hostel_name
+      FROM users
+      LEFT JOIN user_room_assign ON users.username = user_room_assign.user_id
+      LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where username='${user_id}'`,
+      (err, result) => {
+        if (err) throw err;
+        if (result.length > 0) {
+          connection.query(
+            `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
+            (err, result) => {
+              if (err) throw err;
+              res.send({
+                data: result[0],
+                status: "success",
+              });
             }
-
-            res.send({
-              data: {
-                roles: result[0].roles.data.role,
-                user_id: user_id,
-                name: name,
-                is_logged_in: is_logged_in,
-                user_type: userType,
-              },
-              message: "Login Successfull",
-              status: "success",
-            });
-          } else {
-            res.send({ message: "Invalid Credentials", staus: "error" });
-          }
+          );
+        } else {
+          res.send({ message: "Invalid Credentials", staus: "error" });
         }
-      );
-    }
-  );
+      }
+    );
+  } else if (userType === "employee" || userType === "admin") {
+    connection.query(
+      `SELECT * FROM users_employee where emp_id='${user_id}'`,
+      (err, result) => {
+        if (err) throw err;
+        if (result.length > 0) {
+          connection.query(
+            `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
+            (err, result) => {
+              if (err) throw err;
+              res.send({
+                data: result[0],
+                status: "success",
+              });
+            }
+          );
+        } else {
+          res.send({ message: "Invalid Credentials", staus: "error" });
+        }
+      }
+    );
+  }
 };
 exports.users = (req, res) => {
   const { userId } = req.params;
@@ -97,6 +107,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
   console.log(req.body);
   const {
     userId,
+    regd_no,
     userName,
     userEmail,
     userPhone,
@@ -109,7 +120,8 @@ exports.Hostel_Onboard_Request = (req, res) => {
   } = req.body;
   connection.query(
     `Insert into users (
-    username,
+    userId,
+    registration_no,
     name,
     email,
     phone,
@@ -122,7 +134,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
     campus_branch
     )
     values(
-      '${userId}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${role}','${branch_id}'
+      '${userId}','${regd_no}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${role}','${branch_id}'
     )
   `,
     (err, result) => {
@@ -131,6 +143,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
         // Emit the event inside the connection handler
         io.emit("newUserOnBoard", {
           userId,
+          regd_no,
           userName,
           userEmail,
           userPhone,
@@ -145,6 +158,7 @@ exports.Hostel_Onboard_Request = (req, res) => {
           data: {
             user_id: userId,
             name: userName,
+            regd_no: regd_no,
             email: userEmail,
             phone: userPhone,
             user_type: userType,
