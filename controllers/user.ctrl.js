@@ -115,7 +115,6 @@ exports.Hostel_Onboard_Request = (req, res) => {
     branch,
     userType,
     image,
-    role,
     branch_id,
   } = req.body;
   connection.query(
@@ -130,11 +129,10 @@ exports.Hostel_Onboard_Request = (req, res) => {
     user_type,
     user_from,
     image,
-    roles,
     campus_branch
     )
     values(
-      '${userId}','${regd_no}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${role}','${branch_id}'
+      '${userId}','${regd_no}','${userName}','${userEmail}','${userPhone}','${semesterYear}','${branch}','${userType}','hostel','${image}','${branch_id}'
     )
   `,
     (err, result) => {
