@@ -75,7 +75,7 @@ exports.addEmployee = (req, res) => {
         bank_ifsc,
         emp_dob,
         emp_pic,
-        user_type
+        user_type,
         branch_id
         )
         values(
