@@ -90,7 +90,8 @@ exports.users = (req, res) => {
     logged_in_user.*, 
     COALESCE(users_employee.emp_id, users.userId) AS userId,
     COALESCE(users_employee.emp_name, users.name) AS name,
-    COALESCE(users_employee.emp_email, users.email) AS email
+    COALESCE(users_employee.emp_email, users.email) AS email,
+    COALESCE(users_employee.branch_id, users.campus_branch) AS branchId
   FROM logged_in_user 
   LEFT JOIN users_employee ON logged_in_user.user_id = users_employee.emp_id
   LEFT JOIN users ON logged_in_user.user_id = users.userId
