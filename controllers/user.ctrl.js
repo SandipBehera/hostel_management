@@ -45,7 +45,7 @@ exports.web_login = (req, res) => {
         if (err) {
           logger.error(err);
         }
-        if (result) {
+        if (result.length > 0) {
           connection.query(
             `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
             (err, result) => {
@@ -70,7 +70,7 @@ exports.web_login = (req, res) => {
         if (err) {
           logger.error(err);
         }
-        if (result) {
+        if (result.length > 0) {
           connection.query(
             `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
             (err, result) => {
