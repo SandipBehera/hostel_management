@@ -219,7 +219,7 @@ exports.getAllUser = (req, res) => {
     `
     SELECT users.*, user_room_assign.room_id,rooms.hostel_name
     FROM users
-    LEFT JOIN user_room_assign ON users.username = user_room_assign.user_id
+    LEFT JOIN user_room_assign ON users.userId = user_room_assign.user_id
     LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id
   `,
     (err, result) => {
@@ -265,8 +265,8 @@ exports.profile_info = (req, res) => {
     connection.query(
       `SELECT users.* , user_room_assign.room_id,rooms.hostel_name
     FROM users
-    LEFT JOIN user_room_assign ON users.username = user_room_assign.user_id
-    LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where username='${user_id}'`,
+    LEFT JOIN user_room_assign ON users.userId = user_room_assign.user_id
+    LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where userId='${user_id}'`,
       (err, result) => {
         if (err) throw err;
         if (result.length > 0) {

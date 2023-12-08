@@ -46,7 +46,7 @@ const fetchdataById = (regd_no) => {
 const fetchUerData = (regd_no) => {
   return new Promise((resolve, reject) => {
     connect.query(
-      `SELECT * FROM users WHERE username = '${regd_no}'`,
+      `SELECT * FROM users WHERE userId = '${regd_no}'`,
       (err, result) => {
         if (err) {
           console.log("error is", err);

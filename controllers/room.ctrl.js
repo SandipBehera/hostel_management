@@ -45,7 +45,7 @@ exports.Assign_rooms = (req, res) => {
 
 exports.Get_Student_By_Room = (req, res) => {
   const { hostel_id, floor_id, room_id } = req.body;
-  const query = `SELECT users.* FROM users INNER JOIN user_room_assign ON users.username = user_room_assign.user_id WHERE user_room_assign.hostel_id = '${hostel_id}' AND user_room_assign.floor_id = '${floor_id}' AND user_room_assign.room_id = '${room_id}'`;
+  const query = `SELECT users.* FROM users INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id WHERE user_room_assign.hostel_id = '${hostel_id}' AND user_room_assign.floor_id = '${floor_id}' AND user_room_assign.room_id = '${room_id}'`;
   connection.query(query, (err, result) => {
     if (err) {
       console.log(err);
@@ -87,7 +87,7 @@ exports.Today_Attendance = (req, res) => {
 FROM
   users
 INNER JOIN
-  student_attandance ON users.username = student_attandance.user_id
+  student_attandance ON users.userId = student_attandance.user_id
 INNER JOIN
   rooms ON rooms.id = student_attandance.hostel_name
 INNER JOIN
