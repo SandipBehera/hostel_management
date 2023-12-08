@@ -84,20 +84,27 @@ exports.users = (req, res) => {
   console.log(userId);
   const date = DateGenerator();
   console.log(date);
+
   connection.query(
-    `SELECT logged_in_user.*, users.* FROM logged_in_user 
-    INNER JOIN users ON logged_in_user.user_id = users.username
-    where user_id='${userId}' AND date ='${date}' `,
+    `SELECT 
+    logged_in_user.*, 
+    COALESCE(users_employee.emp_id, users.userId) AS userId,
+    COALESCE(users_employee.emp_name, users.name) AS name,
+    COALESCE(users_employee.emp_email, users.email) AS email
+  FROM logged_in_user 
+  LEFT JOIN users_employee ON logged_in_user.user_id = users_employee.emp_id
+  LEFT JOIN users ON logged_in_user.user_id = users.userId
+  WHERE logged_in_user.user_id = '${userId}' AND logged_in_user.date ='${date}'`,
     (err, result) => {
       if (err) throw err;
-      if (result.length > 0) {
+      if (result) {
         res.send({
           data: result[0],
           message: "User List",
           status: "success",
         });
       } else {
-        res.send({ message: "Invalid Credentials", staus: "error" });
+        res.send({ message: "Invalid Credentials", status: "error" });
       }
     }
   );
