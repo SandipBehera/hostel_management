@@ -39,7 +39,7 @@ exports.addEmployee = (req, res) => {
   const join_date = DateConvertor(doj);
 
   let upload_employee_img = "";
-  if (req.files["file"] !== undefined) {
+  if (req.files?.file) {
     const emp_pic = req.files["file"];
     if (!emp_pic) {
       return res
