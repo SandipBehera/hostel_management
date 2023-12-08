@@ -281,7 +281,7 @@ exports.profile_info = (req, res) => {
     );
   } else {
     connection.query(
-      `SELECT * FROM users_employee where employee_id='${user_id}'`,
+      `SELECT * FROM users_employee where emp_id='${user_id}'`,
       (err, result) => {
         if (err) throw err;
         if (result.length > 0) {
