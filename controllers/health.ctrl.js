@@ -1,6 +1,7 @@
 const connection = require("../utils/database");
 const DateGenerator = require("../hooks/date");
 const { getIO } = require("../socket/socket");
+const logger = require("../logger");
 
 exports.add_patient = (req, res) => {
   const {
@@ -29,7 +30,7 @@ exports.add_patient = (req, res) => {
 
   file.mv(`upload/${upload_preception}`, (err) => {
     if (err) {
-      console.error(err);
+      logger.error(err);
       return res
         .status(500)
         .send({ message: "Error uploading file", status: "error" });
@@ -51,7 +52,7 @@ exports.add_patient = (req, res) => {
       ],
       (err, result) => {
         if (err) {
-          console.error(err);
+          logger.error(err);
           return res
             .status(500)
             .send({ message: "Error creating patient", status: "error" });

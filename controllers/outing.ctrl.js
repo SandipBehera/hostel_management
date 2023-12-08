@@ -1,4 +1,5 @@
 const connection = require("../utils/database");
+const logger = require("../logger");
 
 exports.add_outing = (req, res) => {
   const { studentid, date, destination, reason } = req.body;
@@ -8,7 +9,7 @@ exports.add_outing = (req, res) => {
     [studentid, date, destination, reason],
     (err, result) => {
       if (err) {
-        console.error(err);
+        logger.error(err);
         return res
           .status(500)
           .send({ message: "Error creating outing", status: "error" });
@@ -23,7 +24,7 @@ exports.add_outing = (req, res) => {
 exports.get_outing = (req, res) => {
   connection.query(`SELECT * FROM outing`, (err, result) => {
     if (err) {
-      console.error(err);
+      logger.error(err);
       return res
         .status(500)
         .send({ message: "Error fetching outing", status: "error" });
@@ -43,7 +44,7 @@ exports.approve_outing = (req, res) => {
     [id],
     (err, result) => {
       if (err) {
-        console.error(err);
+        logger.error(err);
         return res
           .status(500)
           .send({ message: "Error approving outing", status: "error" });

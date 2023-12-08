@@ -2,11 +2,12 @@ const connection = require("../utils/database");
 
 exports.create_rooms = (req, res) => {
   const { hostel_name, floor_count, room_count, rooms } = req.body;
-  console.log(rooms);
+
+  logger.error(rooms);
   const query = `INSERT INTO rooms (hostel_name, floor_count, room_count, room_details) VALUES ('${hostel_name}', '${floor_count}', '${room_count}', '${rooms}')`;
   connection.query(query, (err, result) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       res.send({ message: "Error creating rooms", status: "error" });
     } else {
       res.send({ message: "Rooms created successfully", status: "success" });
@@ -17,7 +18,7 @@ exports.create_rooms = (req, res) => {
 exports.getRooms = (req, res) => {
   connection.query(`SELECT * FROM rooms`, (err, result) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       res.send({ message: "Error fetching rooms", status: "error" });
     } else {
       res.send({
@@ -30,12 +31,12 @@ exports.getRooms = (req, res) => {
 };
 
 exports.Assign_rooms = (req, res) => {
-  console.log(req.body);
+  logger.error(req.body);
   const { user_id, hostel_id, floor_id, room_id } = req.body;
   const query = `INSERT INTO user_room_assign (user_id, hostel_id,floor_id,room_id) VALUES ('${user_id}', '${hostel_id}', '${floor_id}', '${room_id}')`;
   connection.query(query, (err, result) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       res.send({ message: "Error Assigning rooms", status: "error" });
     } else {
       res.send({ message: "Rooms Assigned successfully", status: "success" });
@@ -48,7 +49,7 @@ exports.Get_Student_By_Room = (req, res) => {
   const query = `SELECT users.* FROM users INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id WHERE user_room_assign.hostel_id = '${hostel_id}' AND user_room_assign.floor_id = '${floor_id}' AND user_room_assign.room_id = '${room_id}'`;
   connection.query(query, (err, result) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       res.send({ message: "Error fetching rooms", status: "error" });
     } else {
       res.send({
@@ -67,7 +68,7 @@ exports.Take_Attendance = (req, res) => {
   }')`;
   connection.query(query, (err, result) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       res.send({ message: "Error Taking Attendance", status: "error" });
     } else {
       res.send({ message: "Attendance Taken successfully", status: "success" });
@@ -97,7 +98,7 @@ WHERE
   AND DATE(student_attandance.created_at) = CURDATE();`;
   connection.query(query, (err, result) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       res.send({ message: "Error fetching rooms", status: "error" });
     } else {
       res.send({
@@ -110,11 +111,12 @@ WHERE
 };
 exports.updateAttandance = (req, res) => {
   const { id, status, comments } = req.body;
-  console.log(req.body);
+
+  logger.error(req.body);
   const query = `UPDATE student_attandance SET status = '${status}', comments = '${comments}' WHERE id = '${id}' AND DATE(created_at) = CURDATE()`;
   connection.query(query, (err, result) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       res.send({ message: "Error Updating Attendance", status: "error" });
     } else {
       res.send({

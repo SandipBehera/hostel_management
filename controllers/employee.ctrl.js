@@ -2,10 +2,13 @@
 const connection = require("../utils/database");
 const DateConvertor = require("../hooks/DateConvertor");
 const _ = require("lodash");
+const logger = require("../logger");
 
 exports.getEmployee = (req, res) => {
   connection.query(`SELECT * FROM users_employee`, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     if (result.length > 0) {
       res.send({
         data: result,
@@ -98,7 +101,9 @@ exports.addEmployee = (req, res) => {
         )
     `,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result) {
         res.send({
           message: "Employee Added Successfull",

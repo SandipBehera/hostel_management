@@ -1,6 +1,7 @@
 const connection = require("../utils/database");
 const DateGenerator = require("../hooks/date");
 const { getIO } = require("../socket/socket");
+const logger = require("../logger");
 
 exports.login = (req, res) => {
   console.log(req.body);
@@ -9,7 +10,9 @@ exports.login = (req, res) => {
   connection.query(
     `SELECT * FROM users WHERE username = '${userid}' AND password = '${password}'`,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result.length > 0) {
         res.send({
           data: {
@@ -39,12 +42,16 @@ exports.web_login = (req, res) => {
       LEFT JOIN user_room_assign ON users.username = user_room_assign.user_id
       LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where username='${user_id}'`,
       (err, result) => {
-        if (err) throw err;
+        if (err) {
+          logger.error(err);
+        }
         if (result) {
           connection.query(
             `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
             (err, result) => {
-              if (err) throw err;
+              if (err) {
+                logger.error(err);
+              }
               res.send({
                 data: result[0],
                 status: "success",
@@ -60,12 +67,16 @@ exports.web_login = (req, res) => {
     connection.query(
       `SELECT * FROM users_employee where emp_id='${user_id}'`,
       (err, result) => {
-        if (err) throw err;
+        if (err) {
+          logger.error(err);
+        }
         if (result) {
           connection.query(
             `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
             (err, result) => {
-              if (err) throw err;
+              if (err) {
+                logger.error(err);
+              }
               res.send({
                 data: result[0],
                 status: "success",
@@ -81,7 +92,7 @@ exports.web_login = (req, res) => {
 };
 exports.users = (req, res) => {
   const { userId } = req.params;
-  console.log(userId);
+  logger.info(userId);
   const date = DateGenerator();
   console.log(date);
 
@@ -97,7 +108,9 @@ exports.users = (req, res) => {
   LEFT JOIN users ON logged_in_user.user_id = users.userId
   WHERE logged_in_user.user_id = '${userId}' AND logged_in_user.date ='${date}'`,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result) {
         res.send({
           data: result[0],
@@ -145,7 +158,9 @@ exports.Hostel_Onboard_Request = (req, res) => {
     )
   `,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result) {
         // Emit the event inside the connection handler
         io.emit("newUserOnBoard", {
@@ -201,7 +216,9 @@ exports.hostel_employee = (req, res) => {
     )
   `,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result) {
         const users_data = users();
         res.send({
@@ -224,7 +241,9 @@ exports.getAllUser = (req, res) => {
     LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id
   `,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
 
       if (result.length > 0) {
         res.send({
@@ -245,7 +264,9 @@ exports.logout = (req, res) => {
   connection.query(
     `update logged_in_user set is_logged_in='0' where user_id='${user_id}' AND date ='${date}' `,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result) {
         res.send({
           data: result[0],
@@ -269,7 +290,9 @@ exports.profile_info = (req, res) => {
     LEFT JOIN user_room_assign ON users.userId = user_room_assign.user_id
     LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where userId='${user_id}'`,
       (err, result) => {
-        if (err) throw err;
+        if (err) {
+          logger.error(err);
+        }
         if (result.length > 0) {
           res.send({
             data: result[0],
@@ -284,7 +307,9 @@ exports.profile_info = (req, res) => {
     connection.query(
       `SELECT * FROM users_employee where emp_id='${user_id}'`,
       (err, result) => {
-        if (err) throw err;
+        if (err) {
+          logger.error(err);
+        }
         if (result.length > 0) {
           res.send({
             data: result[0],

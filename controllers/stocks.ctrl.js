@@ -1,9 +1,12 @@
 const connection = require("../utils/database");
 const DateConvertor = require("../hooks/DateConvertor");
+const logger = require("../logger");
 
 exports.getAllStocks = (req, res) => {
   connection.query(`SELECT * FROM master_stock`, (err, result) => {
-    if (err) throw err;
+    if (err) {
+    }
+
     if (result.length > 0) {
       res.send({
         data: result,
@@ -46,7 +49,10 @@ exports.addStock = (req, res) => {
             '${date}'
         )`,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
+
       if (result) {
         res.send({
           data: result.insertId,
@@ -70,7 +76,10 @@ exports.createItem = (req, res) => {
                 '${item_for}'
             )`,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
+
       if (result) {
         res.send({
           data: result,
@@ -85,7 +94,10 @@ exports.createItem = (req, res) => {
 };
 exports.getItems = (req, res) => {
   connection.query(`SELECT * FROM items`, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
+
     if (result.length > 0) {
       res.send({
         data: result,

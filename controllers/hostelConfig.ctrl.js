@@ -1,8 +1,11 @@
 const connection = require("../utils/database");
+const logger = require("../logger");
 
 exports.getAllConfigs = (req, res) => {
   connection.query(`SELECT * FROM hostel_config`, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     if (result.length > 0) {
       res.send({
         data: result,
@@ -30,7 +33,9 @@ exports.addConfig = (req, res) => {
             VALUES(config_type_name)
         )`,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result) {
         res.send({
           data: result,
@@ -50,7 +55,9 @@ exports.getConfigByType = (req, res) => {
   connection.query(
     `SELECT * FROM hostel_config where config_type='${config_type}'`,
     (err, result) => {
-      if (err) throw err;
+      if (err) {
+        logger.error(err);
+      }
       if (result.length > 0) {
         res.send({
           data: result,

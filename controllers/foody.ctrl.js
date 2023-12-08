@@ -1,8 +1,9 @@
 const DateGenerator = require("../hooks/date");
 const connect = require("../utils/database");
+const logger = require("../logger");
 
 const fetchdataById = (regd_no) => {
-  console.log("fetchdataById", regd_no);
+  logger.info("fetchdataById", regd_no);
   const date = new Date();
   return new Promise((resolve, reject) => {
     connect.query(
@@ -16,7 +17,7 @@ const fetchdataById = (regd_no) => {
       )}' `,
       (err, result) => {
         if (err) {
-          console.log("error is", err);
+          logger.error("error is", err);
           const data = {
             result: err,
             status: false,
@@ -28,14 +29,14 @@ const fetchdataById = (regd_no) => {
               result: result,
               status: true,
             };
-            console.log(data);
+            logger.info(data);
             resolve(data);
           } else {
             const data = {
               result: result,
               status: false,
             };
-            console.log(data);
+            logger.info(data);
             resolve(data);
           }
         }
@@ -49,7 +50,7 @@ const fetchUerData = (regd_no) => {
       `SELECT * FROM users WHERE userId = '${regd_no}'`,
       (err, result) => {
         if (err) {
-          console.log("error is", err);
+          logger.error("error is", err);
           const data = {
             result: err,
             status: false,
@@ -61,14 +62,14 @@ const fetchUerData = (regd_no) => {
               result: result,
               status: true,
             };
-            console.log(data);
+            logger.info(data);
             resolve(data);
           } else {
             const data = {
               result: result,
               status: false,
             };
-            console.log(data);
+            logger.info(data);
             resolve(data);
           }
         }
@@ -93,7 +94,9 @@ exports.book = async (req, res) => {
       if (studentData?.result[0]?.[mealField] === 0) {
         const query = `UPDATE food_booking SET ${mealField} = '1', ${timeField} = '${time}', auth_code = '${auth_code}' WHERE regd_no = '${regd_no}'`;
         connect.query(query, (err, result) => {
-          if (err) throw err;
+          if (err) {
+            logger.error(err);
+          }
           res.send({
             message: "Booking Successful",
             status: "success",
@@ -110,7 +113,9 @@ exports.book = async (req, res) => {
     } else {
       const query = `INSERT INTO food_booking (regd_no,  ${meal_type}, ${meal_type}_time, auth_code, date) VALUES ('${regd_no}', '1', '${time}', '${auth_code}', '${date}')`;
       connect.query(query, async (err, result) => {
-        if (err) throw err;
+        if (err) {
+          logger.error(err);
+        }
         let studentData = await fetchdataById(regd_no);
         res.send({
           message: "Booking Successful",
@@ -121,7 +126,7 @@ exports.book = async (req, res) => {
     }
     connect.end();
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     res.send({ message: "Error", status: "error" });
   }
 };
@@ -130,9 +135,11 @@ exports.getCodes = async (req, res) => {
   const date = DateGenerator();
   const query = `SELECT * FROM food_booking WHERE regd_no = '${regd_no}' AND date = '${date}'`;
   connect.query(query, async (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     if (result.length > 0) {
-      console.log(result[0].regd_no);
+      logger.error(result[0].regd_no);
       res.send({
         status: "success",
         data: result[0],
@@ -148,9 +155,11 @@ exports.checkCode = async (req, res) => {
   const date = DateGenerator();
   const query = `SELECT * FROM food_booking WHERE auth_code = '${auth_code}' AND date = '${date}'`;
   connect.query(query, async (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     if (result.length > 0) {
-      console.log(result[0].regd_no);
+      logger.error(result[0].regd_no);
       const user_details = await fetchUerData(result[0].regd_no);
       res.send({
         message: "Code Matched",
@@ -165,10 +174,12 @@ exports.checkCode = async (req, res) => {
 
 exports.create_food_menu = (req, res) => {
   const { month, year, food_menu } = req.body;
-  console.log(food_menu);
+  logger.error(food_menu);
   const query = `INSERT INTO food_menu (month, year, menu_data) VALUES ('${month}', '${year}', '${food_menu}')`;
   connect.query(query, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     res.send({
       message: "Food Menu Created",
       status: "success",
@@ -179,7 +190,9 @@ exports.create_food_menu = (req, res) => {
 exports.get_last_menu = (req, res) => {
   const query = `SELECT * FROM food_menu ORDER BY id DESC LIMIT 1`;
   connect.query(query, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     res.send({
       message: "Food Menu Fetched",
       status: "success",
@@ -191,7 +204,9 @@ exports.get_last_menu = (req, res) => {
 exports.get_all_menu = (req, res) => {
   const query = `SELECT * FROM food_menu`;
   connect.query(query, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     res.send({
       message: "All Food Menu Fetched",
       status: "success",
@@ -204,7 +219,9 @@ exports.today_bookings = (req, res) => {
   const date = DateGenerator();
   const query = `SELECT * FROM food_booking WHERE date = '${date}'`;
   connect.query(query, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err);
+    }
     res.send({
       message: "Today Bookings Fetched",
       status: "success",
