@@ -33,6 +33,7 @@ exports.addEmployee = (req, res) => {
     ifsc,
     doj,
     userType,
+    branch_id,
   } = req.body;
   console.log(req.body);
   const join_date = DateConvertor(doj);
@@ -75,6 +76,7 @@ exports.addEmployee = (req, res) => {
         emp_dob,
         emp_pic,
         user_type
+        branch_id
         )
         values(
             '${employeeId}',
@@ -91,7 +93,8 @@ exports.addEmployee = (req, res) => {
             '${ifsc}',
             '${join_date}',
             '${upload_employee_img}',
-            '${userType}'
+            '${userType}',
+            '${branch_id}'
         )
     `,
     (err, result) => {
