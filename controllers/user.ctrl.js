@@ -30,7 +30,8 @@ exports.login = (req, res) => {
 };
 exports.web_login = (req, res) => {
   console.log(req.body);
-  const { user_id, name, date, userType, is_logged_in } = req.body;
+  const { user_id, date, userType, is_logged_in } = req.body;
+  console.log(user_id);
   if (userType === "student") {
     connection.query(
       `SELECT users.*, user_room_assign.room_id,rooms.hostel_name
