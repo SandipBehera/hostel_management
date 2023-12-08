@@ -173,7 +173,6 @@ exports.Hostel_Onboard_Request = (req, res) => {
           branch,
           userType,
           image,
-          role,
           branch_id,
         });
         res.send({
@@ -185,7 +184,6 @@ exports.Hostel_Onboard_Request = (req, res) => {
             phone: userPhone,
             user_type: userType,
             user_name: userId,
-            role: role,
             branchid: branch_id,
           },
           message: "User Added Successfull",
