@@ -243,7 +243,7 @@ exports.getAllUser = (req, res) => {
         logger.error(err);
       }
 
-      if (result.length > 0) {
+      if (result !== undefined && result?.length > 0) {
         res.send({
           data: result,
           message: "User List",
