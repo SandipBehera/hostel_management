@@ -38,7 +38,7 @@ exports.create_complaint = (req, res) => {
       });
 
       res.send({
-        message: "Complaints created successfully",
+        message: `${issue_type} created successfully`,
         status: "success",
       });
     }
