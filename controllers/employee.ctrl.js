@@ -49,6 +49,7 @@ exports.addEmployee = (req, res) => {
         .status(400)
         .send({ message: "No file uploaded", status: "error" });
     }
+    upload_employee_img = `${Date.now()}_${emp_pic.name}`;
     emp_pic.mv(`upload/employee/${upload_employee_img}`, (err) => {
       if (err) {
         console.error(err);
@@ -57,7 +58,6 @@ exports.addEmployee = (req, res) => {
           .send({ message: "Error uploading file", status: "error" });
       }
     });
-    upload_employee_img = `${Date.now()}_${emp_pic.name}`;
   } else {
     upload_employee_img = req.body.emp_pic;
   }
