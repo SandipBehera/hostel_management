@@ -1,4 +1,5 @@
 const connection = require("../utils/database");
+const logger = require("../logger");
 
 exports.create_rooms = (req, res) => {
   const { hostel_name, floor_count, room_count, rooms, branch_id } = req.body;

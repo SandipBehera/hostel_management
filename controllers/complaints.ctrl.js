@@ -1,5 +1,6 @@
 const connection = require("../utils/database");
 const { getIO } = require("../socket/socket");
+const logger = require("../logger");
 
 exports.create_complaint = (req, res) => {
   const io = getIO(); // Get the io instance from the socket.js file
@@ -19,7 +20,7 @@ exports.create_complaint = (req, res) => {
     `INSERT INTO complaints (issue_type,issued_by,hostel_id,floor_no,assigned_to,status,details,branch_id) VALUES ('${issue_type}', '${issued_by}', '${hostel_id}', '${floor_no}','${assigned_to}','${status}','${details}','${branch_id}')`,
     (err, result) => {
       if (err) {
-        console.error(err);
+        logger.error(err);
         res.send({ message: "Error creating complaints", status: "error" });
         return;
       }
@@ -65,7 +66,7 @@ exports.update_complaint = (req, res) => {
     `UPDATE complaints SET status = '${status}' WHERE id = ${id}`,
     (err, result) => {
       if (err) {
-        console.error(err);
+        logger.error(err);
         res.send({ message: "Error updating complaints", status: "error" });
         return;
       }
@@ -84,7 +85,7 @@ exports.get_complaints_by_id = (req, res) => {
     `SELECT * FROM complaints WHERE id = ${id}`,
     (err, result) => {
       if (err) {
-        console.error(err);
+        logger.error(err);
         res.send({ message: "Error fetching complaints", status: "error" });
         return;
       }
