@@ -18,15 +18,17 @@ exports.getAllConfigs = (req, res) => {
   });
 };
 exports.addConfig = (req, res) => {
-  const { config_type, config_type_name } = req.body;
+  const { config_type, config_type_name, branch_id } = req.body;
 
   connection.query(
     `INSERT INTO hostel_config (
         config_type,
-        config_type_name
+        config_type_name,
+        branch_id
     ) VALUES (
         '${config_type}',
-        '${config_type_name}'
+        '${config_type_name}',
+        '${branch_id}'
     ) ON DUPLICATE KEY UPDATE
         config_type_name = JSON_MERGE_PRESERVE(
             IFNULL(config_type_name, JSON_ARRAY()),

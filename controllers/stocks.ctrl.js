@@ -27,6 +27,7 @@ exports.addStock = (req, res) => {
     total_price,
     purchased_from,
     purchase_date,
+    branch_id,
   } = req.body;
   console.log(req.body);
   const date = DateConvertor(purchase_date);
@@ -38,7 +39,8 @@ exports.addStock = (req, res) => {
     price_per,
     total_price,
     purchased_from,
-    purchase_date
+    purchase_date,
+    branch_id
         ) VALUES (
             '${item_name}',
             '${item_for}',
@@ -46,7 +48,8 @@ exports.addStock = (req, res) => {
             '${price_per}',
             '${total_price}',
             '${purchased_from}',
-            '${date}'
+            '${date}',
+            '${branch_id}'
         )`,
     (err, result) => {
       if (err) {
@@ -66,14 +69,16 @@ exports.addStock = (req, res) => {
   );
 };
 exports.createItem = (req, res) => {
-  const { item_name, item_for } = req.body;
+  const { item_name, item_for, branch_id } = req.body;
   connection.query(
     `INSERT INTO items (
                 item_name,
-                item_for
+                item_for,
+                branch_id
             ) VALUES (
                 '${item_name}',
-                '${item_for}'
+                '${item_for}',
+                '${branch_id}'
             )`,
     (err, result) => {
       if (err) {

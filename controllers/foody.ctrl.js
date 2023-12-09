@@ -79,7 +79,7 @@ const fetchUerData = (regd_no) => {
   });
 };
 exports.book = async (req, res) => {
-  const { regd_no, meal_type, auth_code } = req.body;
+  const { regd_no, meal_type, auth_code, branch_id } = req.body;
   const date = DateGenerator();
   const time = Date().slice(16, 21);
   // const auth_code = Math.floor(Math.random() * 1000000);
@@ -111,7 +111,7 @@ exports.book = async (req, res) => {
         });
       }
     } else {
-      const query = `INSERT INTO food_booking (regd_no,  ${meal_type}, ${meal_type}_time, auth_code, date) VALUES ('${regd_no}', '1', '${time}', '${auth_code}', '${date}')`;
+      const query = `INSERT INTO food_booking (regd_no,  ${meal_type}, ${meal_type}_time, auth_code, date, branch_id) VALUES ('${regd_no}', '1', '${time}', '${auth_code}', '${date}', '${branch_id}')`;
       connect.query(query, async (err, result) => {
         if (err) {
           logger.error(err);
@@ -173,9 +173,9 @@ exports.checkCode = async (req, res) => {
 };
 
 exports.create_food_menu = (req, res) => {
-  const { month, year, food_menu } = req.body;
+  const { month, year, food_menu, branch_id } = req.body;
   logger.error(food_menu);
-  const query = `INSERT INTO food_menu (month, year, menu_data) VALUES ('${month}', '${year}', '${food_menu}')`;
+  const query = `INSERT INTO food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${food_menu}', '${branch_id}')`;
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);

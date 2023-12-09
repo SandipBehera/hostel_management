@@ -14,6 +14,7 @@ exports.add_patient = (req, res) => {
     time,
     reason,
     doctorname,
+    branch_id,
   } = req.body;
   console.log(req.body);
 
@@ -37,7 +38,7 @@ exports.add_patient = (req, res) => {
     }
 
     connection.query(
-      `INSERT INTO patient (patientname, patient_regdno, hostelid, floorid, roomno, date, time, reason, doctorname, upload_preception) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO patient (patientname, patient_regdno, hostelid, floorid, roomno, date, time, reason, doctorname, upload_preception, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
       [
         patientname,
         patient_regdno,
@@ -49,6 +50,7 @@ exports.add_patient = (req, res) => {
         reason,
         doctorname,
         upload_preception,
+        branch_id,
       ],
       (err, result) => {
         if (err) {

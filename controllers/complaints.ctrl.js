@@ -12,10 +12,11 @@ exports.create_complaint = (req, res) => {
     assigned_to,
     status,
     details,
+    branch_id,
   } = req.body;
 
   connection.query(
-    `INSERT INTO complaints (issue_type,issued_by,hostel_id,floor_no,assigned_to,status,details) VALUES ('${issue_type}', '${issued_by}', '${hostel_id}', '${floor_no}','${assigned_to}','${status}','${details}')`,
+    `INSERT INTO complaints (issue_type,issued_by,hostel_id,floor_no,assigned_to,status,details,branch_id) VALUES ('${issue_type}', '${issued_by}', '${hostel_id}', '${floor_no}','${assigned_to}','${status}','${details}','${branch_id}')`,
     (err, result) => {
       if (err) {
         console.error(err);

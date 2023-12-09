@@ -2,11 +2,11 @@ const connection = require("../utils/database");
 const logger = require("../logger");
 
 exports.add_outing = (req, res) => {
-  const { studentid, date, destination, reason } = req.body;
+  const { studentid, date, destination, reason, branch_id } = req.body;
 
   connection.query(
-    `INSERT INTO outing (studentid, date, destination, reason) VALUES (?, ?, ?, ?)`,
-    [studentid, date, destination, reason],
+    `INSERT INTO outing (studentid, date, destination, reason, branch_id) VALUES (?, ?, ?, ?, ?)`,
+    [studentid, date, destination, reason, branch_id],
     (err, result) => {
       if (err) {
         logger.error(err);
