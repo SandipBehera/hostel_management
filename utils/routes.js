@@ -48,8 +48,8 @@ router.get("/today_booking", foodyController.today_bookings);
 //complaints
 router.post("/create_complaint", complaintsController.create_complaint);
 router.get("/get_complaints", complaintsController.get_complaints);
-router.post("/update_complaint/:id", complaintsController.update_complaint);
-router.post(
+router.post("/update_complaint", complaintsController.update_complaint);
+router.get(
   "/get_complaints_by_id/:id",
   complaintsController.get_complaints_by_id
 );

@@ -17,7 +17,17 @@ exports.create_complaint = (req, res) => {
   } = req.body;
 
   connection.query(
-    `INSERT INTO complaints (issue_type,issued_by,hostel_id,floor_no,assigned_to,status,details,branch_id) VALUES ('${issue_type}', '${issued_by}', '${hostel_id}', '${floor_no}','${assigned_to}','${status}','${details}','${branch_id}')`,
+    "INSERT INTO complaints (issue_type, issued_by, hostel_id, floor_no, assigned_to, status, details, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    [
+      issue_type,
+      issued_by,
+      hostel_id,
+      floor_no,
+      assigned_to,
+      status,
+      details,
+      branch_id,
+    ],
     (err, result) => {
       if (err) {
         logger.error(err);
@@ -35,6 +45,7 @@ exports.create_complaint = (req, res) => {
         assigned_to,
         status,
         details,
+        branch_id,
       });
 
       res.send({
@@ -45,25 +56,29 @@ exports.create_complaint = (req, res) => {
   );
 };
 exports.get_complaints = (req, res) => {
-  connection.query(`SELECT * FROM complaints`, (err, result) => {
-    if (err) {
-      console.log(err);
-      res.send({ message: "Error fetching complaints", status: "error" });
-    } else {
-      res.send({
-        message: "Complaints fetched successfully",
-        status: "success",
-        data: result,
-      });
+  connection.query(
+    `SELECT complaints.*,users_employee.emp_name FROM complaints
+  LEFT JOIN users_employee ON complaints.assigned_to = users_employee.emp_id
+  `,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.send({ message: "Error fetching complaints", status: "error" });
+      } else {
+        res.send({
+          message: "Complaints fetched successfully",
+          status: "success",
+          data: result,
+        });
+      }
     }
-  });
+  );
 };
 exports.update_complaint = (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
+  const { complaint_id, status, content, assignedEmployee } = req.body;
+  const escapedDetails = content.replace(/'/g, "\\'");
   connection.query(
-    `UPDATE complaints SET status = '${status}' WHERE id = ${id}`,
+    `UPDATE complaints SET status = '${status}',details= '${escapedDetails}', assigned_to='${assignedEmployee}' WHERE id = ${complaint_id}`,
     (err, result) => {
       if (err) {
         logger.error(err);
@@ -82,19 +97,30 @@ exports.get_complaints_by_id = (req, res) => {
   const { id } = req.params;
 
   connection.query(
-    `SELECT * FROM complaints WHERE id = ${id}`,
+    `SELECT complaints.*,users.name,rooms.hostel_name, users_employee.emp_name FROM complaints
+    INNER JOIN users ON complaints.issued_by = users.userId
+    LEFT JOIN rooms ON complaints.hostel_id = rooms.id
+    LEFT JOIN users_employee ON complaints.assigned_to = users_employee.emp_id
+    WHERE complaints.id = '${id}'`,
     (err, result) => {
       if (err) {
         logger.error(err);
         res.send({ message: "Error fetching complaints", status: "error" });
         return;
       }
-
-      res.send({
-        message: "Complaints fetched successfully",
-        status: "success",
-        data: result,
-      });
+      if (result?.length > 0) {
+        res.send({
+          message: "Complaints fetched successfully",
+          status: "success",
+          data: result,
+        });
+      } else {
+        res.send({
+          message: "No Complaints Found",
+          status: "error",
+          data: [],
+        });
+      }
     }
   );
 };
