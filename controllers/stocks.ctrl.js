@@ -19,55 +19,66 @@ exports.getAllStocks = (req, res) => {
   });
 };
 exports.addStock = (req, res) => {
-  const {
-    item_name,
-    item_for,
-    quantity,
-    price_per,
-    total_price,
-    purchased_from,
-    purchase_date,
-    branch_id,
-  } = req.body;
-  console.log(req.body);
-  const date = DateConvertor(purchase_date);
-  connection.query(
-    `INSERT INTO master_stock (
-            item_name,
-    item_for,
-    quantity,
-    price_per,
-    total_price,
-    purchased_from,
-    purchase_date,
-    branch_id
-        ) VALUES (
-            '${item_name}',
-            '${item_for}',
-            '${quantity}',
-            '${price_per}',
-            '${total_price}',
-            '${purchased_from}',
-            '${date}',
-            '${branch_id}'
-        )`,
-    (err, result) => {
-      if (err) {
-        logger.error(err);
-      }
+  const { purchased_from, branch_id, allItems, total_price } = req.body;
+  const promises = [];
 
-      if (result) {
-        res.send({
-          data: result.insertId,
-          message: `${item_name} Stock Added`,
-          status: "success",
-        });
-      } else {
-        res.send({ message: "No Stock Added", staus: "error" });
-      }
-    }
-  );
+  allItems.forEach((item) => {
+    const { item_name, item_for, quantity, price, created_at } = item;
+    const date = DateConvertor(created_at);
+
+    const promise = new Promise((resolve, reject) => {
+      connection.query(
+        `INSERT INTO master_stock (
+          item_name,
+          item_for,
+          quantity,
+          price_per,
+          total_price,
+          purchased_from,
+          purchase_date,
+          branch_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          item_name,
+          item_for,
+          quantity,
+          price,
+          total_price,
+          purchased_from,
+          date,
+          branch_id,
+        ],
+        (err, result) => {
+          if (err) {
+            logger.error(err);
+            reject(err);
+          } else {
+            console.log(`${item_name} Stock Added with ID: ${result.insertId}`);
+            resolve(result);
+          }
+        }
+      );
+    });
+
+    promises.push(promise);
+  });
+
+  Promise.all(promises)
+    .then(() => {
+      // Send a response after all promises have resolved
+      res.send({
+        message: "Stocks Added",
+        status: "success",
+      });
+    })
+    .catch(() => {
+      res.send({
+        message: "Stocks Not Added",
+        status: "error",
+      });
+    });
 };
+
 exports.createItem = (req, res) => {
   const { item_name, item_for, branch_id } = req.body;
   connection.query(
