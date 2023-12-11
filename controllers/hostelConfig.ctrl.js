@@ -66,10 +66,6 @@ exports.addConfig = (req, res) => {
 
         // Try parsing JSON
         try {
-          const existingDataArray =
-            existingConfig.config_type_name.data || "[]";
-          const newDataArray = JSON.parse(config_type_name.data || "[]");
-
           const updatedDataArray = [
             ...(existingConfig.config_type_name.data || []),
             ...(JSON.parse(config_type_name).data || []),
