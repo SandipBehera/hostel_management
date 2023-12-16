@@ -66,6 +66,7 @@ router.post("/approve_outing/:id", OutingController.approve_outing);
 //employee
 router.get("/getEmployee", EmployeeController.getEmployee);
 router.post("/addEmployee", EmployeeController.addEmployee);
+router.post("/updateEmployee", EmployeeController.updateEmployee);
 
 //Hostel Config
 router.get("/getAllConfigs", HostelConfigController.getAllConfigs);
