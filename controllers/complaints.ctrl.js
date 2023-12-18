@@ -98,7 +98,8 @@ exports.get_complaints_by_id = (req, res) => {
 
   connection.query(
     `SELECT complaints.*,users.name,rooms.hostel_name, users_employee.emp_name FROM complaints
-    INNER JOIN users ON complaints.issued_by = users.userId
+    LEFT JOIN users ON complaints.issued_by = users.userId
+    LEFT JOIN users_employee ON complaints.issued_by = users_employee.emp_id
     LEFT JOIN rooms ON complaints.hostel_id = rooms.id
     LEFT JOIN users_employee ON complaints.assigned_to = users_employee.emp_id
     WHERE complaints.id = '${id}'`,
