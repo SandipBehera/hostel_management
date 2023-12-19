@@ -32,15 +32,32 @@ exports.getRooms = (req, res) => {
 };
 
 exports.Assign_rooms = (req, res) => {
-  logger.error(req.body);
   const { user_id, hostel_id, floor_id, room_id, branch_id } = req.body;
-  const query = `INSERT INTO user_room_assign (user_id, hostel_id,floor_id,room_id,branch_id) VALUES ('${user_id}', '${hostel_id}', '${floor_id}', '${room_id}','${branch_id}')`;
+  const query = `INSERT INTO user_room_assign (user_id, hostel_id, floor_id, room_id, branch_id)
+  VALUES ('${user_id}', '${hostel_id}', '${floor_id}', '${room_id}', '${branch_id}')
+  ON DUPLICATE KEY UPDATE
+  hostel_id = VALUES(hostel_id),
+  floor_id = VALUES(floor_id),
+  room_id = VALUES(room_id),
+  branch_id = VALUES(branch_id)`;
+  const query2 = `INSERT INTO user_room_assign_history (user_id, hostel_id, floor_id, room_id, branch_id)
+  VALUES ('${user_id}', '${hostel_id}', '${floor_id}', '${room_id}', '${branch_id}')`;
   connection.query(query, (err, result) => {
     if (err) {
       logger.error(err);
       res.send({ message: "Error Assigning rooms", status: "error" });
     } else {
-      res.send({ message: "Rooms Assigned successfully", status: "success" });
+      connection.query(query2, (err, result) => {
+        if (err) {
+          logger.error(err);
+          res.send({ message: "Error Assigning rooms", status: "error" });
+        } else {
+          res.send({
+            message: "Rooms Assigned successfully",
+            status: "success",
+          });
+        }
+      });
     }
   });
 };
