@@ -57,14 +57,15 @@ exports.create_complaint = (req, res) => {
 };
 exports.get_complaints = (req, res) => {
   connection.query(
-    `SELECT 
+    `SELECT DISTINCT
     complaints.*,
-    COALESCE(users_employee.emp_name, users.name) AS user_name,
-    COALESCE(users_employee.emp_id, users.registration_no) AS registration_number
+    assigned_to_employee.emp_name AS Assigned_to,
+    COALESCE(issuer_user.name, issuer_employee_user.emp_name) AS Issued_by
 FROM complaints
-LEFT JOIN users_employee ON complaints.assigned_to = users_employee.emp_id
-LEFT JOIN users ON complaints.assigned_to = users.userId;
-  `,
+LEFT JOIN users_employee AS assigned_to_employee ON complaints.assigned_to = assigned_to_employee.emp_id
+LEFT JOIN users AS issuer_user ON complaints.issued_by = issuer_user.userId
+LEFT JOIN users_employee AS issuer_employee_user ON complaints.issued_by = issuer_employee_user.emp_id;
+;`,
     (err, result) => {
       if (err) {
         console.log(err);
