@@ -19,7 +19,7 @@ exports.getAllConfigs = (req, res) => {
 };
 exports.addConfig = (req, res) => {
   const { config_type, config_type_name, branch_id } = req.body;
-
+  const removedUnderscrore = config_type.replace(/_/g, " ");
   // Check if the record already exists
   connection.query(
     "SELECT * FROM hostel_config WHERE config_type = ? AND branch_id = ?",
@@ -48,7 +48,7 @@ exports.addConfig = (req, res) => {
             }
             res.send({
               data: insertResult,
-              message: `${config_type} Config Added`,
+              message: `${removedUnderscrore} Config Added`,
               status: "success",
             });
           }
@@ -89,7 +89,7 @@ exports.addConfig = (req, res) => {
               }
               res.send({
                 data: updateResult,
-                message: `${config_type} Config Updated`,
+                message: `${removedUnderscrore} Config Updated`,
                 status: "success",
               });
             }
