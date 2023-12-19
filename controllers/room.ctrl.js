@@ -160,7 +160,7 @@ exports.updateAttandance = (req, res) => {
 };
 
 exports.delete_room = (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const query = `DELETE FROM rooms WHERE id = '${id}'`;
   connection.query(query, (err, result) => {
     if (err) {
