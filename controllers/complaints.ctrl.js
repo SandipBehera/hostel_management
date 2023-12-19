@@ -57,8 +57,13 @@ exports.create_complaint = (req, res) => {
 };
 exports.get_complaints = (req, res) => {
   connection.query(
-    `SELECT complaints.*,users_employee.emp_name FROM complaints
-  LEFT JOIN users_employee ON complaints.assigned_to = users_employee.emp_id
+    `SELECT 
+    complaints.*,
+    COALESCE(users_employee.emp_name, users.name) AS user_name,
+    COALESCE(users_employee.emp_id, users.registration_no) AS registration_number
+FROM complaints
+LEFT JOIN users_employee ON complaints.assigned_to = users_employee.emp_id
+LEFT JOIN users ON complaints.assigned_to = users.userId;
   `,
     (err, result) => {
       if (err) {
@@ -97,12 +102,18 @@ exports.get_complaints_by_id = (req, res) => {
   const { id } = req.params;
 
   connection.query(
-    `SELECT complaints.*,users.name,rooms.hostel_name, users_employee.emp_name FROM complaints
-    LEFT JOIN users ON complaints.issued_by = users.userId
-    LEFT JOIN users_employee ON complaints.issued_by = users_employee.emp_id
-    LEFT JOIN rooms ON complaints.hostel_id = rooms.id
-    LEFT JOIN users_employee ON complaints.assigned_to = users_employee.emp_id
-    WHERE complaints.id = '${id}'`,
+    `SELECT 
+    complaints.*,
+    users.name,
+    rooms.hostel_name,
+    issued_by_employee.emp_name AS issued_by_name,
+    assigned_to_employee.emp_name AS assigned_to_name
+FROM complaints
+LEFT JOIN users ON complaints.issued_by = users.userId
+LEFT JOIN users_employee AS issued_by_employee ON complaints.issued_by = issued_by_employee.emp_id
+LEFT JOIN rooms ON complaints.hostel_id = rooms.id
+LEFT JOIN users_employee AS assigned_to_employee ON complaints.assigned_to = assigned_to_employee.emp_id
+WHERE complaints.id = '${id}'`,
     (err, result) => {
       if (err) {
         logger.error(err);
