@@ -32,6 +32,7 @@ router.post("/profile_info", userController.profile_info);
 router.post("/create_rooms", roomController.create_rooms);
 router.get("/get_rooms", roomController.getRooms);
 router.post("/assign_rooms", roomController.Assign_rooms);
+router.post("/delete_rooms", roomController.delete_room);
 
 //Attendance Management
 router.post("/get_student_by_room", roomController.Get_Student_By_Room);

@@ -158,3 +158,16 @@ exports.updateAttandance = (req, res) => {
     }
   });
 };
+
+exports.delete_room = (req, res) => {
+  const { id } = req.body;
+  const query = `DELETE FROM rooms WHERE id = '${id}'`;
+  connection.query(query, (err, result) => {
+    if (err) {
+      logger.error(err);
+      res.send({ message: "Error Deleting Room", status: "error" });
+    } else {
+      res.send({ message: "Room Deleted successfully", status: "success" });
+    }
+  });
+};
