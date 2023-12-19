@@ -229,3 +229,31 @@ exports.today_bookings = (req, res) => {
     });
   });
 };
+
+exports.update_menu = (req, res) => {
+  const { id, menu_data } = req.body;
+  const query = `UPDATE food_menu SET menu_data = '${menu_data}' WHERE id = '${id}'`;
+  connect.query(query, (err, result) => {
+    if (err) {
+      logger.error(err);
+    }
+    res.send({
+      message: "Food Menu Updated Successfully",
+      status: "success",
+    });
+  });
+};
+
+exports.delete_menu = (req, res) => {
+  const { id } = req.body;
+  const query = `DELETE FROM food_menu WHERE id = '${id}'`;
+  connect.query(query, (err, result) => {
+    if (err) {
+      logger.error(err);
+    }
+    res.send({
+      message: "Food Menu Deleted Successfully",
+      status: "success",
+    });
+  });
+};

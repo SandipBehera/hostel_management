@@ -44,6 +44,8 @@ router.post("/create_food_menu", foodyController.create_food_menu);
 router.get("/get_last_menu", foodyController.get_last_menu);
 router.get("/get_all_menu", foodyController.get_all_menu);
 router.get("/today_booking", foodyController.today_bookings);
+router.post("/update_menu", foodyController.update_menu);
+router.post("/delete_menu", foodyController.delete_menu);
 
 //complaints
 router.post("/create_complaint", complaintsController.create_complaint);
