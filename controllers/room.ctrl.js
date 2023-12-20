@@ -64,21 +64,26 @@ exports.Assign_rooms = (req, res) => {
 
 exports.Get_Student_By_Room = (req, res) => {
   const { hostel_id, floor_id, room_id } = req.body;
-  // const query = `SELECT users.* FROM users INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id LEFT JOIN  WHERE user_room_assign.hostel_id = '${hostel_id}' AND user_room_assign.floor_id = '${floor_id}' AND user_room_assign.room_id = '${room_id}'`;
+  // const query = `SELECT users.* FROM users
+  // INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id
+  //  WHERE user_room_assign.hostel_id = '${hostel_id}' AND user_room_assign.floor_id = '${floor_id}' AND user_room_assign.room_id = '${room_id}'`;
   const query = `
-    SELECT
-      users.*,
-      student_attandance.*,
-      CASE WHEN student_attandance.user_id IS NOT NULL THEN true ELSE false END AS attendance_taken
-    FROM
-      users
-      INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id
-      LEFT JOIN student_attandance ON users.userId = student_attandance.user_id AND user_room_assign.user_id = student_attandance.user_id 
-    WHERE
-      user_room_assign.hostel_id = '${hostel_id}'
-      AND user_room_assign.floor_id = '${floor_id}'
-      AND user_room_assign.room_id = '${room_id}'
-  `;
+    SELECT DISTINCT
+    users.*,
+    CASE 
+        WHEN DATE(student_attandance.created_at) = CURDATE() THEN 'taken'
+        ELSE 'not taken'
+    END AS attendance_taken
+FROM
+    users
+    INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id
+    LEFT JOIN student_attandance ON users.userId = student_attandance.user_id AND user_room_assign.user_id = student_attandance.user_id 
+WHERE
+    user_room_assign.hostel_id = '${hostel_id}'
+    AND user_room_assign.floor_id = '${floor_id}'
+    AND user_room_assign.room_id = '${room_id}';
+
+    `;
   connection.query(query, (err, result) => {
     if (err) {
       logger.error(err);
