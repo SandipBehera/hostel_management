@@ -1,6 +1,6 @@
 const connection = require("../utils/database");
 const logger = require("../logger");
-
+const { queryDatabase } = require("../hooks/queryDB");
 exports.create_rooms = (req, res) => {
   const { hostel_name, floor_count, room_count, rooms, branch_id } = req.body;
 
@@ -17,7 +17,7 @@ exports.create_rooms = (req, res) => {
 };
 
 exports.getRooms = (req, res) => {
-  connection.query(`SELECT * FROM rooms`, (err, result) => {
+  connection.query(`SELECT * FROM rooms `, (err, result) => {
     if (err) {
       logger.error(err);
       res.send({ message: "Error fetching rooms", status: "error" });
@@ -30,7 +30,60 @@ exports.getRooms = (req, res) => {
     }
   });
 };
+exports.get_student_room = async (req, res) => {
+  try {
+    const { branch_id } = req.params;
 
+    // Fetch rooms
+    const rooms = await queryDatabase(
+      `SELECT * FROM rooms WHERE branch_id = ?`,
+      [branch_id]
+    );
+
+    // Extract unique room numbers
+    const roomDetails = [
+      ...new Set(
+        rooms.flatMap((room) =>
+          room.room_details.map((detail) => detail.details.room_no)
+        )
+      ),
+    ];
+
+    // Fetch user details for all unique room numbers in a single query
+    const usersDetails = await queryDatabase(
+      `SELECT user_room_assign.*, users.name, users.branch, users.semesterYear 
+       FROM user_room_assign
+       INNER JOIN users ON users.userId = user_room_assign.user_id
+       WHERE room_id IN (${roomDetails.map(() => "?").join(",")})
+       AND branch_id = ?`,
+      [...roomDetails, branch_id]
+    );
+    console.log(usersDetails);
+    console.log(rooms);
+    // Assign user details to respective rooms
+    rooms.forEach((room) => {
+      room.users_details = usersDetails.filter(
+        (user) =>
+          parseInt(user.hostel_id) === room.id &&
+          room.room_details.some(
+            (detail) => detail.details.room_no === user.room_id
+          )
+      );
+    });
+
+    res.send({
+      message: "Rooms fetched successfully",
+      status: "success",
+      data: rooms,
+    });
+  } catch (error) {
+    logger.error(error);
+    res.status(500).send({
+      message: "Error fetching rooms",
+      status: "error",
+    });
+  }
+};
 exports.Assign_rooms = (req, res) => {
   const { user_id, hostel_id, floor_id, room_id, branch_id } = req.body;
   const query = `INSERT INTO user_room_assign (user_id, hostel_id, floor_id, room_id, branch_id)

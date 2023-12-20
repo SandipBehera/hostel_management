@@ -31,6 +31,7 @@ router.post("/profile_info", userController.profile_info);
 //room Management
 router.post("/create_rooms", roomController.create_rooms);
 router.get("/get_rooms", roomController.getRooms);
+router.get("/get_student_room/:branch_id", roomController.get_student_room);
 router.post("/assign_rooms", roomController.Assign_rooms);
 router.delete("/delete_rooms/:id", roomController.delete_room);
 
