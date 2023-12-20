@@ -68,23 +68,24 @@ exports.Get_Student_By_Room = (req, res) => {
   // INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id
   //  WHERE user_room_assign.hostel_id = '${hostel_id}' AND user_room_assign.floor_id = '${floor_id}' AND user_room_assign.room_id = '${room_id}'`;
   const query = `
-SELECT
-    u.id,
-    u.userId,
-    u.name,
-    u.image,
-    MAX(CASE WHEN DATE(sa.created_at) = CURDATE() THEN 'taken' ELSE 'not taken' END) AS attendance_taken,
-    GROUP_CONCAT(sa.comments) AS comments
+  SELECT
+  u.id,
+  u.userId,
+  u.name,
+  u.image,
+  COALESCE(MAX(CASE WHEN DATE(sa.created_at) = CURDATE() THEN 'taken' ELSE 'not taken' END), 'not taken') AS attendance_taken,
+  GROUP_CONCAT(sa.comments) AS comments,
+  GROUP_CONCAT(sa.status) AS statuses
 FROM
-    users u
-    INNER JOIN user_room_assign ura ON u.userId = ura.user_id
-    LEFT JOIN student_attandance sa ON u.userId = sa.user_id AND ura.user_id = sa.user_id
+  users u
+  INNER JOIN user_room_assign ura ON u.userId = ura.user_id
+  LEFT JOIN student_attandance sa ON u.userId = sa.user_id AND ura.user_id = sa.user_id AND DATE(sa.created_at) = CURDATE()
 WHERE
-    ura.hostel_id = '${hostel_id}'
-    AND ura.floor_id = '${floor_id}'
-    AND ura.room_id = '${room_id}'
+  ura.hostel_id = '${hostel_id}'
+  AND ura.floor_id = '${floor_id}'
+  AND ura.room_id = '${room_id}'
 GROUP BY
-   u.id,u.userId , u.name, u.image
+  u.id, u.userId, u.name, u.image;
     `;
   connection.query(query, (err, result) => {
     if (err) {
