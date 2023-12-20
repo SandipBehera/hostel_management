@@ -58,8 +58,6 @@ exports.get_student_room = async (req, res) => {
        AND branch_id = ?`,
       [...roomDetails, branch_id]
     );
-    console.log(usersDetails);
-    console.log(rooms);
     // Assign user details to respective rooms
     rooms.forEach((room) => {
       room.users_details = usersDetails.filter(
