@@ -1,23 +1,37 @@
 const sql = require("mysql2");
 
-const connection = sql.createConnection({
+const connectionConfig = {
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
-});
-connection.connect((err) => {
-  if (err) throw err;
-  console.log("Connected!");
-});
-// Handle disconnection error
-connection.on("error", (err) => {
-  console.error("Database connection error:", err);
-  if (err.code === "PROTOCOL_CONNECTION_LOST") {
-    console.error("Database connection was closed. Reconnecting...");
-    // You can attempt to reconnect here if needed
-  } else {
-    throw err;
-  }
-});
+};
+
+function connectDatabase() {
+  const connection = sql.createConnection(connectionConfig);
+
+  connection.connect((err) => {
+    if (err) {
+      console.error("Error connecting to database:", err.stack);
+      setTimeout(connectDatabase, 2000); // Try to reconnect every 2 seconds
+    } else {
+      console.log("Connected to the database");
+    }
+  });
+
+  // Handle disconnection error
+  connection.on("error", (err) => {
+    console.error("Database connection error:", err);
+    if (err.code === "PROTOCOL_CONNECTION_LOST") {
+      console.error("Database connection was closed. Reconnecting...");
+      connectDatabase(); // Try to reconnect
+    } else {
+      throw err;
+    }
+  });
+
+  return connection;
+}
+
+const connection = connectDatabase();
 module.exports = connection;
