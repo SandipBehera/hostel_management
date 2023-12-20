@@ -103,7 +103,7 @@ exports.get_complaints_by_id = (req, res) => {
   const { id } = req.params;
 
   connection.query(
-    `SELECT 
+    `SELECT DISTINCT
     complaints.*,
     users.name,
     rooms.hostel_name,
