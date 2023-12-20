@@ -73,7 +73,8 @@ SELECT
     u.userId,
     u.name,
     u.image,
-    MAX(CASE WHEN DATE(sa.created_at) = CURDATE() THEN 'taken' ELSE 'not taken' END) AS attendance_taken
+    MAX(CASE WHEN DATE(sa.created_at) = CURDATE() THEN 'taken' ELSE 'not taken' END) AS attendance_taken,
+    GROUP_CONCAT(sa.comments) AS comments
 FROM
     users u
     INNER JOIN user_room_assign ura ON u.userId = ura.user_id
