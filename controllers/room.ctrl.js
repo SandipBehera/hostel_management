@@ -101,15 +101,62 @@ GROUP BY
 
 exports.Take_Attendance = (req, res) => {
   const { user_id, hostel_id, room_id, status, comments, branch_id } = req.body;
-  const query = `INSERT INTO student_attandance (user_id, hostel_name,room_number, status, comments, branch_id) VALUES ('${user_id}', '${hostel_id}', '${room_id}', '${status}', '${
-    comments !== null ? comments : ""
-  }','${branch_id}')`;
-  connection.query(query, (err, result) => {
-    if (err) {
-      logger.error(err);
-      res.send({ message: "Error Taking Attendance", status: "error" });
+
+  // Check if a record exists for the userId and today's date
+  const checkQuery = `
+    SELECT * 
+    FROM student_attandance 
+    WHERE user_id = '${user_id}' 
+    AND DATE(created_at) = CURDATE()
+    LIMIT 1
+  `;
+
+  connection.query(checkQuery, (checkErr, checkResult) => {
+    if (checkErr) {
+      logger.error(checkErr);
+      res.send({ message: "Error Checking Attendance", status: "error" });
+      return;
+    }
+
+    if (checkResult && checkResult.length > 0) {
+      // If a record exists, update the status to "absent"
+      const updateQuery = `
+        UPDATE student_attandance 
+        SET status = '0', comments = '${comments !== null ? comments : ""}'
+        WHERE id = '${checkResult[0].id}'
+      `;
+
+      connection.query(updateQuery, (updateErr, updateResult) => {
+        if (updateErr) {
+          logger.error(updateErr);
+          res.send({ message: "Error Updating Attendance", status: "error" });
+        } else {
+          res.send({
+            message: "Attendance Updated Successfully",
+            status: "success",
+          });
+        }
+      });
     } else {
-      res.send({ message: "Attendance Taken successfully", status: "success" });
+      // If no record exists, insert a new record
+      const insertQuery = `
+        INSERT INTO student_attandance (user_id, hostel_name, room_number, status, comments, branch_id) 
+        VALUES ('${user_id}', '${hostel_id}', '${room_id}', '${status}', '${
+        comments !== null ? comments : ""
+      }', '${branch_id}')
+      `;
+
+      connection.query(insertQuery, (insertErr, insertResult) => {
+        if (insertErr) {
+          logger.error(insertErr);
+          res.send({ message: "Error Taking Attendance", status: "error" });
+        } else {
+          res.send({
+            message: "Attendance Taken Successfully",
+            status: "success",
+          });
+        }
+      });
     }
   });
 };
