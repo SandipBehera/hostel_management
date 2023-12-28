@@ -242,9 +242,8 @@ exports.get_all_menu = (req, res) => {
 
 exports.today_bookings = (req, res) => {
   const date = DateGenerator();
-  const query = `SELECT food_booking.*,users.*,food_booking_history.* FROM food_booking
+  const query = `SELECT food_booking.*,users.* FROM food_booking
   INNER JOIN users ON users.userId = food_booking.regd_no
-  INNER JOIN food_booking_history ON food_booking_history.regd_no = food_booking.regd_no
   WHERE date = '${date}'`;
   connect.query(query, (err, result) => {
     if (err) {
