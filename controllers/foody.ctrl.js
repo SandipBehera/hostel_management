@@ -46,8 +46,17 @@ const fetchdataById = (regd_no) => {
 };
 const fetchUerData = (regd_no) => {
   return new Promise((resolve, reject) => {
+    const date = new Date();
     connect.query(
-      `SELECT * FROM users WHERE userId = '${regd_no}'`,
+      `SELECT users.*, food_booking.break_fast, food_booking.lunch, food_booking.dinner
+      FROM food_booking
+      INNER JOIN users ON users.userId = food_booking.regd_no
+      WHERE food_booking.regd_no = '${regd_no}' 
+      AND food_booking.date = '${date.toLocaleDateString("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })}'`,
       (err, result) => {
         if (err) {
           logger.error("error is", err);
@@ -86,11 +95,10 @@ exports.book = async (req, res) => {
 
   try {
     let studentData = await fetchdataById(regd_no);
-
+    console.log(studentData);
     if (studentData?.status === true) {
       const mealField = `${meal_type}`;
       const timeField = `${meal_type}_time`;
-
       if (studentData?.result[0]?.[mealField] === 0) {
         const query = `UPDATE food_booking SET ${mealField} = '1', ${timeField} = '${time}', auth_code = '${auth_code}' WHERE regd_no = '${regd_no}'`;
         connect.query(query, (err, result) => {
@@ -124,7 +132,6 @@ exports.book = async (req, res) => {
         });
       });
     }
-    connect.end();
   } catch (err) {
     logger.error(err);
     res.send({ message: "Error", status: "error" });
@@ -217,7 +224,10 @@ exports.get_all_menu = (req, res) => {
 
 exports.today_bookings = (req, res) => {
   const date = DateGenerator();
-  const query = `SELECT * FROM food_booking WHERE date = '${date}'`;
+  const query = `SELECT food_booking.*,users.*,food_booking_history.* FROM food_booking
+  INNER JOIN users ON users.userId = food_booking.regd_no
+  INNER JOIN food_booking_history ON food_booking_history.regd_no = food_booking.regd_no
+  WHERE date = '${date}'`;
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -254,6 +264,27 @@ exports.delete_menu = (req, res) => {
     res.send({
       message: "Food Menu Deleted Successfully",
       status: "success",
+    });
+  });
+};
+
+exports.food_booking_history = (req, res) => {
+  const { regd_no, meal_type, approved_by, branch_id, status } = req.body;
+  const taken_at = new Date().toISOString().slice(0, 19).replace("T", " ");
+  const query = `INSERT INTO food_booking_history (regd_no, meal_type, taken_at, approved_by, branch_id, status) VALUES ('${regd_no}', '${meal_type}', '${taken_at}', '${approved_by}', '${branch_id}', '${status}')`;
+  connect.query(query, (err, result) => {
+    if (err) {
+      logger.error(err);
+    }
+    const query2 = `Update food_booking SET auth_code= null WHERE regd_no = '${regd_no}'`;
+    connect.query(query2, (err, result) => {
+      if (err) {
+        logger.error(err);
+      }
+      res.send({
+        message: "Food Allocate Successfully",
+        status: "success",
+      });
     });
   });
 };

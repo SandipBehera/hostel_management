@@ -16,6 +16,7 @@ router.post("/login", userController.login);
 router.post("/food_booking", foodyController.book);
 router.post("/getCodes", foodyController.getCodes);
 router.post("/checkcode", foodyController.checkCode);
+router.post("/food_allocate", foodyController.food_booking_history);
 
 //web App Routes
 router.post("/web_login", userController.web_login);
