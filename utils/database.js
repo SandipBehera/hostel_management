@@ -30,6 +30,12 @@ function connectDatabase() {
     }
   });
 
+  // Handle connection close event
+  connection.on("end", () => {
+    console.log("Database connection was closed. Reconnecting...");
+    connectDatabase(); // Try to reconnect
+  });
+
   return connection;
 }
 

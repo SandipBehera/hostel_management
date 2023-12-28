@@ -5,46 +5,54 @@ const logger = require("../logger");
 const fetchdataById = (regd_no) => {
   logger.info("fetchdataById", regd_no);
   const date = new Date();
+
+  // Validate input parameters
+  if (!regd_no) {
+    const error = new Error("Invalid input: regd_no is required");
+    logger.error("Error details:", error.stack);
+    return Promise.reject({
+      result: error,
+      status: false,
+    });
+  }
+
   return new Promise((resolve, reject) => {
     connect.query(
-      `SELECT * FROM food_booking WHERE regd_no = '${regd_no}' AND date = '${date.toLocaleDateString(
-        "en-CA",
-        {
+      `SELECT * FROM food_booking WHERE regd_no = ? AND date = ?`,
+      [
+        regd_no,
+        date.toLocaleDateString("en-CA", {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
-        }
-      )}' `,
+        }),
+      ],
       (err, result) => {
         if (err) {
-          logger.error("error is", err);
-          const data = {
+          logger.error("Database error:", err.stack);
+          reject({
             result: err,
             status: false,
-          };
-          reject(data);
+          });
         } else {
           if (result.length > 0) {
-            const data = {
+            resolve({
               result: result,
               status: true,
-            };
-            logger.info(data);
-            resolve(data);
+            });
           } else {
-            const data = {
+            resolve({
               result: result,
               status: false,
-            };
-            logger.info(data);
-            resolve(data);
+            });
           }
         }
       }
     );
   });
 };
-const fetchUerData = (regd_no) => {
+
+const fetchUserData = (regd_no) => {
   return new Promise((resolve, reject) => {
     const date = new Date();
     connect.query(
@@ -84,7 +92,6 @@ const fetchUerData = (regd_no) => {
         }
       }
     );
-    connect.end();
   });
 };
 exports.book = async (req, res) => {
@@ -158,25 +165,36 @@ exports.getCodes = async (req, res) => {
 };
 
 exports.checkCode = async (req, res) => {
-  const { auth_code } = req.body;
-  const date = DateGenerator();
-  const query = `SELECT * FROM food_booking WHERE auth_code = '${auth_code}' AND date = '${date}'`;
-  connect.query(query, async (err, result) => {
-    if (err) {
-      logger.error(err);
-    }
-    if (result.length > 0) {
-      logger.error(result[0].regd_no);
-      const user_details = await fetchUerData(result[0].regd_no);
-      res.send({
-        message: "Code Matched",
-        status: "success",
-        data: user_details,
-      });
-    } else {
-      res.send({ message: "Code Not Matched", status: "error" });
-    }
-  });
+  try {
+    const { auth_code } = req.body;
+    const date = DateGenerator();
+    const query = "SELECT * FROM food_booking WHERE auth_code = ? AND date = ?";
+
+    connect.query(query, [auth_code, date], async (err, result) => {
+      if (err) {
+        logger.error("Database error:", err);
+        res
+          .status(500)
+          .send({ message: "Internal Server Error", status: "error" });
+        return;
+      }
+
+      if (result.length > 0) {
+        logger.info("Code matched:", result[0].regd_no);
+        const user_details = await fetchUserData(result[0].regd_no);
+        res.send({
+          message: "Code Matched",
+          status: "success",
+          data: user_details,
+        });
+      } else {
+        res.send({ message: "Code Not Matched", status: "error" });
+      }
+    });
+  } catch (error) {
+    logger.error("Error:", error);
+    res.status(500).send({ message: "Internal Server Error", status: "error" });
+  }
 };
 
 exports.create_food_menu = (req, res) => {
