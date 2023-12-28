@@ -1,6 +1,8 @@
 const connection = require("../utils/database");
 const logger = require("../logger");
 const { queryDatabase } = require("../hooks/queryDB");
+const { sendEmail } = require("../mail/sendEmail");
+const { RoomAssigend } = require("../mail/template/new_room");
 exports.create_rooms = (req, res) => {
   const { hostel_name, floor_count, room_count, rooms, branch_id } = req.body;
 
@@ -103,6 +105,17 @@ exports.Assign_rooms = (req, res) => {
           logger.error(err);
           res.send({ message: "Error Assigning rooms", status: "error" });
         } else {
+          RoomAssigend(user_id, hostel_id, room_id, (err, content) => {
+            if (err) {
+              console.error("Error generating email content:", err);
+            } else {
+              sendEmail(
+                content,
+                "sandip.sudip36@gmail.com",
+                "Welcome to Hostel Management System- Room Assigned"
+              );
+            }
+          });
           res.send({
             message: "Rooms Assigned successfully",
             status: "success",
