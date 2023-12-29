@@ -25,14 +25,6 @@ function connectDatabase() {
       } else {
         console.log("Keep-alive query executed successfully:", results);
       }
-      // Close the connection
-      connection.end((endErr) => {
-        if (endErr) {
-          console.error("Error closing database connection:", endErr);
-        } else {
-          console.log("Database connection closed.");
-        }
-      });
     });
   }, 1000 * 60 * 5); // 5 minutes
   // Handle disconnection error
