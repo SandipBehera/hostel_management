@@ -18,7 +18,23 @@ function connectDatabase() {
       console.log("Connected to the database");
     }
   });
-
+  setInterval(function () {
+    connection.query("SELECT 1", (queryErr, results) => {
+      if (queryErr) {
+        console.error("Error executing keep-alive query:", queryErr);
+      } else {
+        console.log("Keep-alive query executed successfully:", results);
+      }
+      // Close the connection
+      connection.end((endErr) => {
+        if (endErr) {
+          console.error("Error closing database connection:", endErr);
+        } else {
+          console.log("Database connection closed.");
+        }
+      });
+    });
+  }, 1000 * 60 * 5); // 5 minutes
   // Handle disconnection error
   connection.on("error", (err) => {
     console.error("Database connection error:", err);
