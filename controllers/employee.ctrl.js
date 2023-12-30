@@ -138,7 +138,14 @@ exports.updateEmployee = (req, res) => {
   const join_date = DateConvertor(doj);
 
   let upload_employee_img = "";
-  if (req.files?.file) {
+  console.log(typeof req.files?.file);
+  if (
+    req.files?.file &&
+    (typeof req.files !== "string" ||
+      req.files !== "undefined" ||
+      req.files !== null ||
+      req.files !== undefined)
+  ) {
     const emp_pic = req.files["file"];
     if (!emp_pic) {
       return res
@@ -155,7 +162,7 @@ exports.updateEmployee = (req, res) => {
       }
     });
   } else {
-    upload_employee_img = req.body.emp_pic;
+    upload_employee_img = req.body.file;
   }
 
   connection.query(
