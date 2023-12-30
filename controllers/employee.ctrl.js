@@ -192,3 +192,40 @@ exports.updateEmployee = (req, res) => {
     }
   );
 };
+
+exports.assignHostel = (req, res) => {
+  const { employeeId, hostel_id, branch_id } = req.body;
+  connection.query(
+    `UPDATE users_employee SET assigned_hostel_id = '${hostel_id}' WHERE emp_id = '${employeeId}'`,
+    (err, result) => {
+      if (err) {
+        logger.error(err);
+      }
+      if (result) {
+        const query = `INSERT INTO user_room_assign_history (user_id, hostel_id,branch_id) VALUES (?, ?, ?)`; // Insert into user_room_assign_history
+        connection.query(
+          query,
+          [employeeId, hostel_id, branch_id],
+          (err, result) => {
+            if (err) {
+              logger.error(err);
+            }
+            if (result) {
+              res.send({
+                message: "Hostel Assigned Successfull",
+                status: "success",
+              });
+            } else {
+              res.send({
+                message: "Something Wrong Happened while instering history",
+                staus: "error",
+              });
+            }
+          }
+        );
+      } else {
+        res.send({ message: "Something Wrong Happened", staus: "error" });
+      }
+    }
+  );
+};
