@@ -28,6 +28,7 @@ router.post("/onboard_users", userController.Hostel_Onboard_Request);
 router.get("/get_all_users", userController.getAllUser);
 router.post("/employee_onboard", userController.hostel_employee);
 router.post("/profile_info", userController.profile_info);
+router.post("/remove_user", userController.RemoveUser);
 
 //room Management
 router.post("/create_rooms", roomController.create_rooms);
@@ -35,6 +36,7 @@ router.get("/get_rooms", roomController.getRooms);
 router.get("/get_student_room/:branch_id", roomController.get_student_room);
 router.post("/assign_rooms", roomController.Assign_rooms);
 router.delete("/delete_rooms/:id", roomController.delete_room);
+router.post("/update_hostel/:id", roomController.update_room);
 
 //Attendance Management
 router.post("/get_student_by_room", roomController.Get_Student_By_Room);

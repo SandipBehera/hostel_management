@@ -320,3 +320,62 @@ exports.profile_info = (req, res) => {
     );
   }
 };
+
+exports.RemoveUser = (req, res) => {
+  const { user_id } = req.body;
+  const query = `SELECT * FROM users WHERE userId = '${user_id}'`;
+  const query1 = `CALL Delete_Archive_users(?)`;
+  const query2 = `CALL DeleteAndArchiveUserRoomAssign(?)`;
+  const query3 = `SELECT * FROM user_room_assign WHERE user_id = '${user_id}'`;
+
+  connection.query(query, [user_id], (err, userResult) => {
+    if (err) {
+      logger.error(err);
+      return res.send({ message: "Error occurred", status: "error" });
+    }
+
+    if (userResult.length > 0) {
+      connection.query(query3, [user_id], (err, roomAssignResult) => {
+        if (err) {
+          logger.error(err);
+          return res.send({ message: "Error occurred", status: "error" });
+        }
+
+        if (roomAssignResult.length > 0) {
+          connection.query(query1, [user_id], (err) => {
+            if (err) {
+              logger.error(err);
+              return res.send({ message: "Error occurred", status: "error" });
+            }
+
+            connection.query(query2, [user_id], (err) => {
+              if (err) {
+                logger.error(err);
+                return res.send({ message: "Error occurred", status: "error" });
+              }
+
+              res.send({
+                message: "User Removed Successfully",
+                status: "success",
+              });
+            });
+          });
+        } else {
+          connection.query(query1, [user_id], (err) => {
+            if (err) {
+              logger.error(err);
+              return res.send({ message: "Error occurred", status: "error" });
+            }
+
+            res.send({
+              message: "User Removed Successfully",
+              status: "success",
+            });
+          });
+        }
+      });
+    } else {
+      res.send({ message: "User not found", status: "error" });
+    }
+  });
+};

@@ -290,3 +290,17 @@ exports.delete_room = (req, res) => {
     }
   });
 };
+
+exports.update_room = (req, res) => {
+  const { id } = req.params;
+  const { hostel_name, floor_count, room_count, rooms, branch_id } = req.body;
+  const query = `UPDATE rooms SET hostel_name = '${hostel_name}', floor_count = '${floor_count}', room_count = '${room_count}', room_details = '${rooms}', branch_id = '${branch_id}' WHERE id = '${id}'`;
+  connection.query(query, (err, result) => {
+    if (err) {
+      logger.error(err);
+      res.send({ message: "Error Updating Room", status: "error" });
+    } else {
+      res.send({ message: "Room Updated successfully", status: "success" });
+    }
+  });
+};
