@@ -200,15 +200,29 @@ exports.checkCode = async (req, res) => {
 exports.create_food_menu = (req, res) => {
   const { month, year, food_menu, branch_id } = req.body;
   logger.error(food_menu);
+  const duplicate = `SELECT * FROM food_menu WHERE month = '${month}' AND year = '${year}' AND branch_id = '${branch_id}'`;
   const query = `INSERT INTO food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${food_menu}', '${branch_id}')`;
-  connect.query(query, (err, result) => {
+  connect.query(duplicate, (err, result) => {
     if (err) {
       logger.error(err);
     }
-    res.send({
-      message: "Food Menu Created",
-      status: "success",
-    });
+    if (result.length > 0) {
+      res.send({
+        message: "Food Menu Already Created",
+        status: "error",
+      });
+      return;
+    } else {
+      connect.query(query, (err, result) => {
+        if (err) {
+          logger.error(err);
+        }
+        res.send({
+          message: "Food Menu Created",
+          status: "success",
+        });
+      });
+    }
   });
 };
 
