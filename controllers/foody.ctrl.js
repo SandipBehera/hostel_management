@@ -259,7 +259,7 @@ exports.today_bookings = (req, res) => {
 
 exports.update_menu = (req, res) => {
   const { id, menu_data } = req.body;
-  const query = `UPDATE food_menu SET menu_data = '${menu_data}' WHERE id = '${id}'`;
+  const query = `UPDATE food_menu SET menu_data = '${menu_data}' WHERE id = '${id}' AND date = TODAY()`;
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
