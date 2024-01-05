@@ -107,7 +107,7 @@ exports.book = async (req, res) => {
       const mealField = `${meal_type}`;
       const timeField = `${meal_type}_time`;
       if (studentData?.result[0]?.[mealField] === 0) {
-        const query = `UPDATE food_booking SET ${mealField} = '1', ${timeField} = '${time}', auth_code = '${auth_code}' WHERE regd_no = '${regd_no}'`;
+        const query = `UPDATE food_booking SET ${mealField} = '1', ${timeField} = '${time}', auth_code = '${auth_code}' WHERE regd_no = '${regd_no}' and date = '${date}'`;
         connect.query(query, (err, result) => {
           if (err) {
             logger.error(err);
@@ -273,7 +273,7 @@ exports.today_bookings = (req, res) => {
 
 exports.update_menu = (req, res) => {
   const { id, menu_data } = req.body;
-  const query = `UPDATE food_menu SET menu_data = '${menu_data}' WHERE id = '${id}' AND date = TODAY()`;
+  const query = `UPDATE food_menu SET menu_data = '${menu_data}' WHERE id = '${id}'`;
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
