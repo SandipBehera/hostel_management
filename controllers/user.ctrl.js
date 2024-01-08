@@ -34,6 +34,7 @@ exports.login = async (req, res) => {
 };
 exports.web_login = async (req, res) => {
   const { user_id, date, userType, is_logged_in, Auth } = req.body;
+  console.log(Auth);
   req.session.Auth = Auth;
   const conn = await connectDatabase(Auth);
   if (conn) {
