@@ -39,13 +39,13 @@ exports.get_student_room = async (req, res) => {
   try {
     const { branch_id } = req.params;
     const Auth = req.session.Auth;
-    const connection = await connectDatabase(Auth);
     // Fetch hms_rooms
     const rooms = await queryDatabase(
       `SELECT * FROM hms_rooms WHERE branch_id = ?`,
-      [branch_id]
+      [branch_id],
+      Auth
     );
-
+    console.log(rooms);
     // Extract unique room numbers
     const roomDetails = [
       ...new Set(
@@ -54,6 +54,7 @@ exports.get_student_room = async (req, res) => {
         )
       ),
     ];
+    console.log(roomDetails);
 
     // Fetch user details for all unique room numbers in a single query
     const usersDetails = await queryDatabase(
@@ -62,7 +63,8 @@ exports.get_student_room = async (req, res) => {
        INNER JOIN hms_users ON hms_users.userId = hms_user_room_assign.user_id
        WHERE room_id IN (${roomDetails.map(() => "?").join(",")})
        AND branch_id = ?`,
-      [...roomDetails, branch_id]
+      [...roomDetails, branch_id],
+      Auth
     );
     // Assign user details to respective hms_rooms
     rooms.forEach((room) => {

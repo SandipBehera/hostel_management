@@ -61,13 +61,13 @@ exports.get_complaints = async (req, res) => {
   const connection = await connectDatabase(Auth);
   connection.query(
     `SELECT DISTINCT
-    complaints.*,
+    hms_complaints.*,
     assigned_to_employee.emp_name AS Assigned_to,
     COALESCE(issuer_user.name, issuer_employee_user.emp_name) AS Issued_by
-FROM complaints
-LEFT JOIN hms_users_employee AS assigned_to_employee ON complaints.assigned_to = assigned_to_employee.emp_id
-LEFT JOIN hms_users AS issuer_user ON complaints.issued_by = issuer_user.userId
-LEFT JOIN hms_users_employee AS issuer_employee_user ON complaints.issued_by = issuer_employee_user.emp_id;
+FROM hms_complaints
+LEFT JOIN hms_users_employee AS assigned_to_employee ON hms_complaints.assigned_to = assigned_to_employee.emp_id
+LEFT JOIN hms_users AS issuer_user ON hms_complaints.issued_by = issuer_user.userId
+LEFT JOIN hms_users_employee AS issuer_employee_user ON hms_complaints.issued_by = issuer_employee_user.emp_id;
 ;`,
     (err, result) => {
       if (err) {

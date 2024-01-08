@@ -1,5 +1,6 @@
 const Express = require("express");
-const session = require("express-session");
+const cookieSession = require("cookie-session");
+const path = require("path");
 const BodyParser = require("body-parser");
 const cors = require("cors");
 const Http = require("http");
@@ -11,20 +12,31 @@ require("dotenv").config();
 const app = Express();
 const server = Http.createServer(app);
 initializeSocket(server);
+// app.use(cors({ origin: "*" }));
+const corsOptions = {
+  origin: "http://13.58.217.203:3000",
+  credentials: true,
+};
 
+app.use(cors(corsOptions));
 app.use(
-  session({
-    secret: "keyboard cat",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+  cookieSession({
+    name: "session",
+    keys: [process.env.SESSION_SECRET || "keyboardcat"],
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: false, // Set to true if using HTTPS
+    httpOnly: false,
+    sameSite: "lax",
+    // Add other cookie options as needed
   })
 );
+
 const MasterRouter = require("./utils/routes");
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
-app.use(cors({ origin: "*" }));
+
 app.use("/upload", Express.static("upload"));
 
 app.use("/api", MasterRouter);
@@ -36,6 +48,10 @@ app.use((err, req, res, next) => {
 
   // Send an appropriate response to the client
   res.status(500).send("Something went wrong!");
+});
+app.use((req, res, next) => {
+  console.log("Session:", req.session);
+  next();
 });
 // Handle uncaught exceptions
 process.on("uncaughtException", (err) => {
@@ -51,6 +67,7 @@ process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection at:", promise, "reason:", reason);
   logger.error(reason);
 });
+
 process.env.NODE_ENV === "production"
   ? (PORT = process.env.PROD_PORT)
   : (PORT = process.env.DEV_PORT);

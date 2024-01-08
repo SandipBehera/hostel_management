@@ -20,7 +20,8 @@ router.post("/food_allocate", foodyController.food_booking_history);
 
 //web App Routes
 router.post("/web_login", userController.web_login);
-router.get("/users/:userId", userController.users);
+router.get("/get_session", userController.get_session);
+router.get("/users/:userId/campus/:campus_name", userController.users);
 router.get("/logout/:userId", userController.logout);
 
 //hostel Management
