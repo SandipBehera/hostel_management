@@ -1,13 +1,14 @@
-const connection = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const logger = require("../logger");
 const { queryDatabase } = require("../hooks/queryDB");
 const { sendEmail } = require("../mail/sendEmail");
 const { RoomAssigend } = require("../mail/template/new_room");
-exports.create_rooms = (req, res) => {
+exports.create_rooms = async (req, res) => {
   const { hostel_name, floor_count, room_count, rooms, branch_id } = req.body;
-
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   logger.error(rooms);
-  const query = `INSERT INTO rooms (hostel_name, floor_count, room_count, room_details, branch_id) VALUES ('${hostel_name}', '${floor_count}', '${room_count}', '${rooms}', '${branch_id}')`;
+  const query = `INSERT INTO hms_rooms (hostel_name, floor_count, room_count, room_details, branch_id) VALUES ('${hostel_name}', '${floor_count}', '${room_count}', '${rooms}', '${branch_id}')`;
   connection.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -18,8 +19,10 @@ exports.create_rooms = (req, res) => {
   });
 };
 
-exports.getRooms = (req, res) => {
-  connection.query(`SELECT * FROM rooms `, (err, result) => {
+exports.getRooms = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(`SELECT * FROM hms_rooms `, (err, result) => {
     if (err) {
       logger.error(err);
       res.send({ message: "Error fetching rooms", status: "error" });
@@ -35,10 +38,11 @@ exports.getRooms = (req, res) => {
 exports.get_student_room = async (req, res) => {
   try {
     const { branch_id } = req.params;
-
-    // Fetch rooms
+    const Auth = req.session.Auth;
+    const connection = await connectDatabase(Auth);
+    // Fetch hms_rooms
     const rooms = await queryDatabase(
-      `SELECT * FROM rooms WHERE branch_id = ?`,
+      `SELECT * FROM hms_rooms WHERE branch_id = ?`,
       [branch_id]
     );
 
@@ -53,14 +57,14 @@ exports.get_student_room = async (req, res) => {
 
     // Fetch user details for all unique room numbers in a single query
     const usersDetails = await queryDatabase(
-      `SELECT user_room_assign.*, users.name, users.branch, users.semesterYear 
-       FROM user_room_assign
-       INNER JOIN users ON users.userId = user_room_assign.user_id
+      `SELECT hms_user_room_assign.*, hms_users.name, hms_users.branch, hms_users.semesterYear 
+       FROM hms_user_room_assign
+       INNER JOIN hms_users ON hms_users.userId = hms_user_room_assign.user_id
        WHERE room_id IN (${roomDetails.map(() => "?").join(",")})
        AND branch_id = ?`,
       [...roomDetails, branch_id]
     );
-    // Assign user details to respective rooms
+    // Assign user details to respective hms_rooms
     rooms.forEach((room) => {
       room.users_details = usersDetails.filter(
         (user) =>
@@ -84,16 +88,18 @@ exports.get_student_room = async (req, res) => {
     });
   }
 };
-exports.Assign_rooms = (req, res) => {
+exports.Assign_rooms = async (req, res) => {
   const { user_id, hostel_id, floor_id, room_id, branch_id } = req.body;
-  const query = `INSERT INTO user_room_assign (user_id, hostel_id, floor_id, room_id, branch_id)
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  const query = `INSERT INTO hms_user_room_assign (user_id, hostel_id, floor_id, room_id, branch_id)
   VALUES ('${user_id}', '${hostel_id}', '${floor_id}', '${room_id}', '${branch_id}')
   ON DUPLICATE KEY UPDATE
   hostel_id = VALUES(hostel_id),
   floor_id = VALUES(floor_id),
   room_id = VALUES(room_id),
   branch_id = VALUES(branch_id)`;
-  const query2 = `INSERT INTO user_room_assign_history (user_id, hostel_id, floor_id, room_id, branch_id)
+  const query2 = `INSERT INTO hms_user_room_assign_history (user_id, hostel_id, floor_id, room_id, branch_id)
   VALUES ('${user_id}', '${hostel_id}', '${floor_id}', '${room_id}', '${branch_id}')`;
   connection.query(query, (err, result) => {
     if (err) {
@@ -126,11 +132,13 @@ exports.Assign_rooms = (req, res) => {
   });
 };
 
-exports.Get_Student_By_Room = (req, res) => {
+exports.Get_Student_By_Room = async (req, res) => {
   const { hostel_id, floor_id, room_id } = req.body;
-  // const query = `SELECT users.* FROM users
-  // INNER JOIN user_room_assign ON users.userId = user_room_assign.user_id
-  //  WHERE user_room_assign.hostel_id = '${hostel_id}' AND user_room_assign.floor_id = '${floor_id}' AND user_room_assign.room_id = '${room_id}'`;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  // const query = `SELECT hms_users.* FROM hms_users
+  // INNER JOIN hms_user_room_assign ON hms_users.userId = hms_user_room_assign.user_id
+  //  WHERE hms_user_room_assign.hostel_id = '${hostel_id}' AND hms_user_room_assign.floor_id = '${floor_id}' AND hms_user_room_assign.room_id = '${room_id}'`;
   const query = `
   SELECT
   u.id,
@@ -141,9 +149,9 @@ exports.Get_Student_By_Room = (req, res) => {
   GROUP_CONCAT(sa.comments) AS comments,
   GROUP_CONCAT(sa.status) AS statuses
 FROM
-  users u
-  INNER JOIN user_room_assign ura ON u.userId = ura.user_id
-  LEFT JOIN student_attandance sa ON u.userId = sa.user_id AND ura.user_id = sa.user_id AND DATE(sa.created_at) = CURDATE()
+  hms_users u
+  INNER JOIN hms_user_room_assign ura ON u.userId = ura.user_id
+  LEFT JOIN hms_student_attandance sa ON u.userId = sa.user_id AND ura.user_id = sa.user_id AND DATE(sa.created_at) = CURDATE()
 WHERE
   ura.hostel_id = '${hostel_id}'
   AND ura.floor_id = '${floor_id}'
@@ -165,13 +173,14 @@ GROUP BY
   });
 };
 
-exports.Take_Attendance = (req, res) => {
+exports.Take_Attendance = async (req, res) => {
   const { user_id, hostel_id, room_id, status, comments, branch_id } = req.body;
-
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   // Check if a record exists for the userId and today's date
   const checkQuery = `
     SELECT * 
-    FROM student_attandance 
+    FROM hms_student_attandance 
     WHERE user_id = '${user_id}' 
     AND DATE(created_at) = CURDATE()
     LIMIT 1
@@ -187,7 +196,7 @@ exports.Take_Attendance = (req, res) => {
     if (checkResult && checkResult.length > 0) {
       // If a record exists, update the status to "absent"
       const updateQuery = `
-        UPDATE student_attandance 
+        UPDATE hms_student_attandance 
         SET status = '0', comments = '${comments !== null ? comments : ""}'
         WHERE id = '${checkResult[0].id}'
       `;
@@ -206,7 +215,7 @@ exports.Take_Attendance = (req, res) => {
     } else {
       // If no record exists, insert a new record
       const insertQuery = `
-        INSERT INTO student_attandance (user_id, hostel_name, room_number, status, comments, branch_id) 
+        INSERT INTO hms_student_attandance (user_id, hostel_name, room_number, status, comments, branch_id) 
         VALUES ('${user_id}', '${hostel_id}', '${room_id}', '${status}', '${
         comments !== null ? comments : ""
       }', '${branch_id}')
@@ -227,26 +236,28 @@ exports.Take_Attendance = (req, res) => {
   });
 };
 
-exports.Today_Attendance = (req, res) => {
+exports.Today_Attendance = async (req, res) => {
   const { hostel_id } = req.body;
-  // const query = `SELECT users.* FROM users INNER JOIN student_attandance ON users.username = student_attandance.user_id INNER JOIN rooms ON rooms.id = student_attandance.hostel_name WHERE student_attandance.hostel_name = '${hostel_id}' AND DATE(student_attandance.created_at) = CURDATE()`;
+  // const query = `SELECT hms_users.* FROM hms_users INNER JOIN hms_student_attandance ON hms_users.username = hms_student_attandance.user_id INNER JOIN hms_rooms ON hms_rooms.id = hms_student_attandance.hostel_name WHERE hms_student_attandance.hostel_name = '${hostel_id}' AND DATE(hms_student_attandance.created_at) = CURDATE()`;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   const query = `SELECT
-  users.*,
-  student_attandance.*,
-  rooms.hostel_name,
-  user_room_assign.room_id
+  hms_users.*,
+  hms_student_attandance.*,
+  hms_rooms.hostel_name,
+  hms_user_room_assign.room_id
 
 FROM
-  users
+  hms_users
 INNER JOIN
-  student_attandance ON users.userId = student_attandance.user_id
+  hms_student_attandance ON hms_users.userId = hms_student_attandance.user_id
 INNER JOIN
-  rooms ON rooms.id = student_attandance.hostel_name
+  hms_rooms ON hms_rooms.id = hms_student_attandance.hostel_name
 INNER JOIN
-  user_room_assign ON user_room_assign.user_id = student_attandance.user_id
+  hms_user_room_assign ON hms_user_room_assign.user_id = hms_student_attandance.user_id
 WHERE
-  student_attandance.hostel_name = '${hostel_id}'
-  AND DATE(student_attandance.created_at) = CURDATE();`;
+  hms_student_attandance.hostel_name = '${hostel_id}'
+  AND DATE(hms_student_attandance.created_at) = CURDATE();`;
   connection.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -260,11 +271,12 @@ WHERE
     }
   });
 };
-exports.updateAttandance = (req, res) => {
+exports.updateAttandance = async (req, res) => {
   const { id, status, comments } = req.body;
-
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   logger.error(req.body);
-  const query = `UPDATE student_attandance SET status = '${status}', comments = '${comments}' WHERE id = '${id}' AND DATE(created_at) = CURDATE()`;
+  const query = `UPDATE hms_student_attandance SET status = '${status}', comments = '${comments}' WHERE id = '${id}' AND DATE(created_at) = CURDATE()`;
   connection.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -278,9 +290,11 @@ exports.updateAttandance = (req, res) => {
   });
 };
 
-exports.delete_room = (req, res) => {
+exports.delete_room = async (req, res) => {
   const { id } = req.params;
-  const query = `DELETE FROM rooms WHERE id = '${id}'`;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  const query = `DELETE FROM hms_rooms WHERE id = '${id}'`;
   connection.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -291,10 +305,12 @@ exports.delete_room = (req, res) => {
   });
 };
 
-exports.update_room = (req, res) => {
+exports.update_room = async (req, res) => {
   const { id } = req.params;
   const { hostel_name, floor_count, room_count, rooms, branch_id } = req.body;
-  const query = `UPDATE rooms SET hostel_name = '${hostel_name}', floor_count = '${floor_count}', room_count = '${room_count}', room_details = '${rooms}', branch_id = '${branch_id}' WHERE id = '${id}'`;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  const query = `UPDATE hms_rooms SET hostel_name = '${hostel_name}', floor_count = '${floor_count}', room_count = '${room_count}', room_details = '${rooms}', branch_id = '${branch_id}' WHERE id = '${id}'`;
   connection.query(query, (err, result) => {
     if (err) {
       logger.error(err);

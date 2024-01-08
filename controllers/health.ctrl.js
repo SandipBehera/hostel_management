@@ -1,9 +1,9 @@
-const connection = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const DateGenerator = require("../hooks/date");
 const { getIO } = require("../socket/socket");
 const logger = require("../logger");
 
-exports.add_patient = (req, res) => {
+exports.add_patient = async (req, res) => {
   const {
     patientname,
     patient_regdno,
@@ -17,7 +17,8 @@ exports.add_patient = (req, res) => {
     branch_id,
   } = req.body;
   console.log(req.body);
-
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   // Assuming you have the 'file' field in your form
   const file = req.files["file"];
   console.log(file);
@@ -38,7 +39,7 @@ exports.add_patient = (req, res) => {
     }
 
     connection.query(
-      `INSERT INTO patient (patientname, patient_regdno, hostelid, floorid, roomno, date, time, reason, doctorname, upload_preception, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
+      `INSERT INTO hms_patient (patientname, patient_regdno, hostelid, floorid, roomno, date, time, reason, doctorname, upload_preception, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
       [
         patientname,
         patient_regdno,
@@ -69,8 +70,10 @@ exports.add_patient = (req, res) => {
   });
 };
 
-exports.getAllPatient = (req, res) => {
-  connection.query(`SELECT * FROM patient`, (err, result) => {
+exports.getAllPatient = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(`SELECT * FROM hms_patient`, (err, result) => {
     if (err) {
       console.log(err);
       res.send({ message: "Error fetching patient", status: "error" });

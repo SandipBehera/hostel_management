@@ -1,4 +1,5 @@
 const Express = require("express");
+const session = require("express-session");
 const BodyParser = require("body-parser");
 const cors = require("cors");
 const Http = require("http");
@@ -11,6 +12,14 @@ const app = Express();
 const server = Http.createServer(app);
 initializeSocket(server);
 
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 const MasterRouter = require("./utils/routes");
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));

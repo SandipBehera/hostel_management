@@ -1,8 +1,10 @@
-const connection = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const logger = require("../logger");
 
-exports.getAllConfigs = (req, res) => {
-  connection.query(`SELECT * FROM hostel_config`, (err, result) => {
+exports.getAllConfigs = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(`SELECT * FROM hms_hostel_config`, (err, result) => {
     if (err) {
       logger.error(err);
     }
@@ -17,12 +19,14 @@ exports.getAllConfigs = (req, res) => {
     }
   });
 };
-exports.addConfig = (req, res) => {
+exports.addConfig = async (req, res) => {
   const { config_type, config_type_name, branch_id } = req.body;
   const removedUnderscrore = config_type.replace(/_/g, " ");
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   // Check if the record already exists
   connection.query(
-    "SELECT * FROM hostel_config WHERE config_type = ? AND branch_id = ?",
+    "SELECT * FROM hms_hostel_config WHERE config_type = ? AND branch_id = ?",
     [config_type, branch_id],
     (selectErr, selectResult) => {
       if (selectErr) {
@@ -36,7 +40,7 @@ exports.addConfig = (req, res) => {
       if (selectResult.length === 0) {
         // Record doesn't exist, perform an INSERT
         connection.query(
-          "INSERT INTO hostel_config (config_type, config_type_name, branch_id) VALUES (?, ?, ?)",
+          "INSERT INTO hms_hostel_config (config_type, config_type_name, branch_id) VALUES (?, ?, ?)",
           [config_type, config_type_name, branch_id],
           (insertErr, insertResult) => {
             if (insertErr) {
@@ -73,7 +77,7 @@ exports.addConfig = (req, res) => {
 
           console.log(updatedDataArray);
           connection.query(
-            "UPDATE hostel_config SET config_type_name = ? WHERE config_type = ? AND branch_id = ?",
+            "UPDATE hms_hostel_config SET config_type_name = ? WHERE config_type = ? AND branch_id = ?",
             [
               JSON.stringify({ data: updatedDataArray }),
               config_type,
@@ -106,11 +110,13 @@ exports.addConfig = (req, res) => {
   );
 };
 
-exports.getConfigByType = (req, res) => {
+exports.getConfigByType = async (req, res) => {
   const { config_type } = req.params;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   console.log(config_type);
   connection.query(
-    `SELECT * FROM hostel_config where config_type='${config_type}'`,
+    `SELECT * FROM hms_hostel_config where config_type='${config_type}'`,
     (err, result) => {
       if (err) {
         logger.error(err);

@@ -1,9 +1,11 @@
-const connection = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const DateConvertor = require("../hooks/DateConvertor");
 const logger = require("../logger");
 
-exports.getAllStocks = (req, res) => {
-  connection.query(`SELECT * FROM master_stock`, (err, result) => {
+exports.getAllStocks = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(`SELECT * FROM hms_master_stock`, (err, result) => {
     if (err) {
     }
 
@@ -18,8 +20,10 @@ exports.getAllStocks = (req, res) => {
     }
   });
 };
-exports.addStock = (req, res) => {
+exports.addStock = async (req, res) => {
   const { purchased_from, branch_id, allItems, total_price } = req.body;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   const promises = [];
 
   allItems.forEach((item) => {
@@ -28,7 +32,7 @@ exports.addStock = (req, res) => {
 
     const promise = new Promise((resolve, reject) => {
       connection.query(
-        `INSERT INTO master_stock (
+        `INSERT INTO hms_master_stock (
           item_name,
           item_for,
           quantity,
@@ -79,10 +83,12 @@ exports.addStock = (req, res) => {
     });
 };
 
-exports.createItem = (req, res) => {
+exports.createItem = async (req, res) => {
   const { item_name, item_for, branch_id } = req.body;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `INSERT INTO items (
+    `INSERT INTO hms_items (
                 item_name,
                 item_for,
                 branch_id
@@ -108,8 +114,10 @@ exports.createItem = (req, res) => {
     }
   );
 };
-exports.getItems = (req, res) => {
-  connection.query(`SELECT * FROM items`, (err, result) => {
+exports.getItems = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(`SELECT * FROM hms_items`, (err, result) => {
     if (err) {
       logger.error(err);
     }

@@ -1,8 +1,8 @@
 const connection = require("../../utils/database");
 
 exports.RoomAssigend = (studentName, HostelName, RoomNo, callback) => {
-  const query = `SELECT * FROM rooms WHERE id = ${HostelName}`;
-  const query2 = `SELECT * FROM users WHERE userId = ?`;
+  const query = `SELECT * FROM hms_rooms WHERE id = ${HostelName}`;
+  const query2 = `SELECT * FROM hms_users WHERE userId = ?`;
 
   connection.query(query, (err, result) => {
     if (err) {

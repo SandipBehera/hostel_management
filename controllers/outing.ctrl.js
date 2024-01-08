@@ -1,11 +1,12 @@
-const connection = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const logger = require("../logger");
 
-exports.add_outing = (req, res) => {
+exports.add_outing = async (req, res) => {
   const { studentid, date, destination, reason, branch_id } = req.body;
-
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `INSERT INTO outing (studentid, date, destination, reason, branch_id) VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO hms_outing (studentid, date, destination, reason, branch_id) VALUES (?, ?, ?, ?, ?)`,
     [studentid, date, destination, reason, branch_id],
     (err, result) => {
       if (err) {
@@ -21,8 +22,10 @@ exports.add_outing = (req, res) => {
     }
   );
 };
-exports.get_outing = (req, res) => {
-  connection.query(`SELECT * FROM outing`, (err, result) => {
+exports.get_outing = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(`SELECT * FROM hms_outing`, (err, result) => {
     if (err) {
       logger.error(err);
       return res
@@ -36,11 +39,13 @@ exports.get_outing = (req, res) => {
   });
 };
 
-exports.approve_outing = (req, res) => {
+exports.approve_outing = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `UPDATE outing SET status = '${status}' WHERE id = ?`,
+    `UPDATE hms_outing SET status = '${status}' WHERE id = ?`,
     [id],
     (err, result) => {
       if (err) {

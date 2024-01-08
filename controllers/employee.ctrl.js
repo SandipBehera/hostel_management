@@ -1,11 +1,13 @@
 // Purpose: Employee controller file
-const connection = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const DateConvertor = require("../hooks/DateConvertor");
 const _ = require("lodash");
 const logger = require("../logger");
 
-exports.getEmployee = (req, res) => {
-  connection.query(`SELECT * FROM users_employee`, (err, result) => {
+exports.getEmployee = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(`SELECT * FROM hms_users_employee`, (err, result) => {
     if (err) {
       logger.error(err);
     }
@@ -20,7 +22,7 @@ exports.getEmployee = (req, res) => {
     }
   });
 };
-exports.addEmployee = (req, res) => {
+exports.addEmployee = async (req, res) => {
   const {
     employeeId,
     name,
@@ -39,6 +41,8 @@ exports.addEmployee = (req, res) => {
     branch_id,
   } = req.body;
   console.log(req.body);
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   const join_date = DateConvertor(doj);
 
   let upload_employee_img = "";
@@ -63,7 +67,7 @@ exports.addEmployee = (req, res) => {
   }
 
   connection.query(
-    `Insert into users_employee (
+    `Insert into hms_users_employee (
         emp_id,
         emp_name,
         emp_email,
@@ -116,7 +120,7 @@ exports.addEmployee = (req, res) => {
   );
 };
 
-exports.updateEmployee = (req, res) => {
+exports.updateEmployee = async (req, res) => {
   const {
     employeeId,
     name,
@@ -135,6 +139,8 @@ exports.updateEmployee = (req, res) => {
     branch_id,
   } = req.body;
   console.log(req.body);
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   const join_date = DateConvertor(doj);
 
   let upload_employee_img = "";
@@ -166,7 +172,7 @@ exports.updateEmployee = (req, res) => {
   }
 
   connection.query(
-    `UPDATE users_employee SET
+    `UPDATE hms_users_employee SET
         emp_name = '${name}',
         emp_email = '${email}',
         emp_phone = '${contact}',
@@ -200,16 +206,18 @@ exports.updateEmployee = (req, res) => {
   );
 };
 
-exports.assignHostel = (req, res) => {
+exports.assignHostel = async (req, res) => {
   const { employeeId, hostel_id, branch_id } = req.body;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `UPDATE users_employee SET assigned_hostel_id = '${hostel_id}' WHERE emp_id = '${employeeId}'`,
+    `UPDATE hms_users_employee SET assigned_hostel_id = '${hostel_id}' WHERE emp_id = '${employeeId}'`,
     (err, result) => {
       if (err) {
         logger.error(err);
       }
       if (result) {
-        const query = `INSERT INTO user_room_assign_history (user_id, hostel_id,branch_id) VALUES (?, ?, ?)`; // Insert into user_room_assign_history
+        const query = `INSERT INTO hms_user_room_assign_history (user_id, hostel_id,branch_id) VALUES (?, ?, ?)`; // Insert into hms_user_room_assign_history
         connection.query(
           query,
           [employeeId, hostel_id, branch_id],

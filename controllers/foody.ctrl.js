@@ -1,10 +1,12 @@
 const DateGenerator = require("../hooks/date");
-const connect = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const logger = require("../logger");
 
-const fetchdataById = (regd_no) => {
+const fetchdataById = async (regd_no) => {
   logger.info("fetchdataById", regd_no);
   const date = new Date();
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
 
   // Validate input parameters
   if (!regd_no) {
@@ -18,7 +20,7 @@ const fetchdataById = (regd_no) => {
 
   return new Promise((resolve, reject) => {
     connect.query(
-      `SELECT * FROM food_booking WHERE regd_no = ? AND date = ?`,
+      `SELECT * FROM hms_food_booking WHERE regd_no = ? AND date = ?`,
       [
         regd_no,
         date.toLocaleDateString("en-CA", {
@@ -52,15 +54,17 @@ const fetchdataById = (regd_no) => {
   });
 };
 
-const fetchUserData = (regd_no) => {
+const fetchUserData = async (regd_no) => {
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
   return new Promise((resolve, reject) => {
     const date = new Date();
     connect.query(
-      `SELECT users.*, food_booking.break_fast, food_booking.lunch, food_booking.dinner
-      FROM food_booking
-      INNER JOIN users ON users.userId = food_booking.regd_no
-      WHERE food_booking.regd_no = '${regd_no}' 
-      AND food_booking.date = '${date.toLocaleDateString("en-CA", {
+      `SELECT hms_users.*, hms_food_booking.break_fast, hms_food_booking.lunch, hms_food_booking.dinner
+      FROM hms_food_booking
+      INNER JOIN hms_users ON hms_users.userId = hms_food_booking.regd_no
+      WHERE hms_food_booking.regd_no = '${regd_no}' 
+      AND hms_food_booking.date = '${date.toLocaleDateString("en-CA", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -98,6 +102,8 @@ exports.book = async (req, res) => {
   const { regd_no, meal_type, auth_code, branch_id } = req.body;
   const date = DateGenerator();
   const time = Date().slice(16, 21);
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
   // const auth_code = Math.floor(Math.random() * 1000000);
 
   try {
@@ -107,7 +113,7 @@ exports.book = async (req, res) => {
       const mealField = `${meal_type}`;
       const timeField = `${meal_type}_time`;
       if (studentData?.result[0]?.[mealField] === 0) {
-        const query = `UPDATE food_booking SET ${mealField} = '1', ${timeField} = '${time}', auth_code = '${auth_code}' WHERE regd_no = '${regd_no}' and date = '${date}'`;
+        const query = `UPDATE hms_food_booking SET ${mealField} = '1', ${timeField} = '${time}', auth_code = '${auth_code}' WHERE regd_no = '${regd_no}' and date = '${date}'`;
         connect.query(query, (err, result) => {
           if (err) {
             logger.error(err);
@@ -126,7 +132,7 @@ exports.book = async (req, res) => {
         });
       }
     } else {
-      const query = `INSERT INTO food_booking (regd_no,  ${meal_type}, ${meal_type}_time, auth_code, date, branch_id) VALUES ('${regd_no}', '1', '${time}', '${auth_code}', '${date}', '${branch_id}')`;
+      const query = `INSERT INTO hms_food_booking (regd_no,  ${meal_type}, ${meal_type}_time, auth_code, date, branch_id) VALUES ('${regd_no}', '1', '${time}', '${auth_code}', '${date}', '${branch_id}')`;
       connect.query(query, async (err, result) => {
         if (err) {
           logger.error(err);
@@ -147,7 +153,9 @@ exports.book = async (req, res) => {
 exports.getCodes = async (req, res) => {
   const { regd_no } = req.body;
   const date = DateGenerator();
-  const query = `SELECT * FROM food_booking WHERE regd_no = '${regd_no}' AND date = '${date}'`;
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
+  const query = `SELECT * FROM hms_food_booking WHERE regd_no = '${regd_no}' AND date = '${date}'`;
   connect.query(query, async (err, result) => {
     if (err) {
       logger.error(err);
@@ -168,7 +176,10 @@ exports.checkCode = async (req, res) => {
   try {
     const { auth_code } = req.body;
     const date = DateGenerator();
-    const query = "SELECT * FROM food_booking WHERE auth_code = ? AND date = ?";
+    const Auth = req.session.Auth;
+    const connect = await connectDatabase(Auth);
+    const query =
+      "SELECT * FROM hms_food_booking WHERE auth_code = ? AND date = ?";
 
     connect.query(query, [auth_code, date], async (err, result) => {
       if (err) {
@@ -197,11 +208,13 @@ exports.checkCode = async (req, res) => {
   }
 };
 
-exports.create_food_menu = (req, res) => {
+exports.create_food_menu = async (req, res) => {
   const { month, year, food_menu, branch_id } = req.body;
   logger.error(food_menu);
-  const duplicate = `SELECT * FROM food_menu WHERE month = '${month}' AND year = '${year}' AND branch_id = '${branch_id}'`;
-  const query = `INSERT INTO food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${food_menu}', '${branch_id}')`;
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
+  const duplicate = `SELECT * FROM hms_food_menu WHERE month = '${month}' AND year = '${year}' AND branch_id = '${branch_id}'`;
+  const query = `INSERT INTO hms_food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${hms_food_menu}', '${branch_id}')`;
   connect.query(duplicate, (err, result) => {
     if (err) {
       logger.error(err);
@@ -226,8 +239,10 @@ exports.create_food_menu = (req, res) => {
   });
 };
 
-exports.get_last_menu = (req, res) => {
-  const query = `SELECT * FROM food_menu ORDER BY id DESC LIMIT 1`;
+exports.get_last_menu = async (req, res) => {
+  const query = `SELECT * FROM hms_food_menu ORDER BY id DESC LIMIT 1`;
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -240,8 +255,10 @@ exports.get_last_menu = (req, res) => {
   });
 };
 
-exports.get_all_menu = (req, res) => {
-  const query = `SELECT * FROM food_menu`;
+exports.get_all_menu = async (req, res) => {
+  const query = `SELECT * FROM hms_food_menu`;
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -254,10 +271,12 @@ exports.get_all_menu = (req, res) => {
   });
 };
 
-exports.today_bookings = (req, res) => {
+exports.today_bookings = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
   const date = DateGenerator();
-  const query = `SELECT food_booking.*,users.* FROM food_booking
-  INNER JOIN users ON users.userId = food_booking.regd_no
+  const query = `SELECT hms_food_booking.*,hms_users.* FROM hms_food_booking
+  INNER JOIN hms_users ON hms_users.userId = hms_food_booking.regd_no
   WHERE date = '${date}'`;
   connect.query(query, (err, result) => {
     if (err) {
@@ -273,7 +292,7 @@ exports.today_bookings = (req, res) => {
 
 exports.update_menu = (req, res) => {
   const { id, menu_data } = req.body;
-  const query = `UPDATE food_menu SET menu_data = '${menu_data}' WHERE id = '${id}'`;
+  const query = `UPDATE hms_food_menu SET menu_data = '${menu_data}' WHERE id = '${id}'`;
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -285,9 +304,11 @@ exports.update_menu = (req, res) => {
   });
 };
 
-exports.delete_menu = (req, res) => {
+exports.delete_menu = async (req, res) => {
   const { id } = req.body;
-  const query = `DELETE FROM food_menu WHERE id = '${id}'`;
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
+  const query = `DELETE FROM hms_food_menu WHERE id = '${id}'`;
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
@@ -299,15 +320,17 @@ exports.delete_menu = (req, res) => {
   });
 };
 
-exports.food_booking_history = (req, res) => {
+exports.food_booking_history = async (req, res) => {
   const { regd_no, meal_type, approved_by, branch_id, status } = req.body;
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
   const taken_at = new Date().toISOString().slice(0, 19).replace("T", " ");
-  const query = `INSERT INTO food_booking_history (regd_no, meal_type, taken_at, approved_by, branch_id, status) VALUES ('${regd_no}', '${meal_type}', '${taken_at}', '${approved_by}', '${branch_id}', '${status}')`;
+  const query = `INSERT INTO hms_food_booking_history (regd_no, meal_type, taken_at, approved_by, branch_id, status) VALUES ('${regd_no}', '${meal_type}', '${taken_at}', '${approved_by}', '${branch_id}', '${status}')`;
   connect.query(query, (err, result) => {
     if (err) {
       logger.error(err);
     }
-    const query2 = `Update food_booking SET auth_code= null WHERE regd_no = '${regd_no}'`;
+    const query2 = `Update hms_food_booking SET auth_code= null WHERE regd_no = '${regd_no}'`;
     connect.query(query2, (err, result) => {
       if (err) {
         logger.error(err);

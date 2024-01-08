@@ -1,14 +1,15 @@
-const connection = require("../utils/database");
+const connectDatabase = require("../utils/database");
 const DateGenerator = require("../hooks/date");
 const { getIO } = require("../socket/socket");
 const logger = require("../logger");
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
   console.log(req.body);
   const { userid, password } = req.body;
-
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `SELECT * FROM users WHERE username = '${userid}' AND password = '${password}'`,
+    `SELECT * FROM hms_users WHERE username = '${userid}' AND password = '${password}'`,
     (err, result) => {
       if (err) {
         logger.error(err);
@@ -31,83 +32,85 @@ exports.login = (req, res) => {
     }
   );
 };
-exports.web_login = (req, res) => {
-  console.log(req.body);
+exports.web_login = async (req, res) => {
   const { user_id, date, userType, is_logged_in, Auth } = req.body;
-  console.log(user_id);
-  console.log(Auth);
-  if (userType === "student") {
-    connection.query(
-      `SELECT users.*, user_room_assign.room_id,rooms.hostel_name
-      FROM users
-      LEFT JOIN user_room_assign ON users.userId = user_room_assign.user_id
-      LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where userId='${user_id}'`,
-      (err, result) => {
-        if (err) {
-          logger.error(err);
-        }
-        if (result !== undefined && result?.length > 0) {
-          connection.query(
-            `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
-            (err, result) => {
-              if (err) {
-                logger.error(err);
+  req.session.Auth = Auth;
+  const conn = await connectDatabase(Auth);
+  if (conn) {
+    if (userType === "student") {
+      conn.query(
+        `SELECT hms_users.*, hms_user_room_assign.room_id,hms_rooms.hostel_name
+      FROM hms_users
+      LEFT JOIN hms_user_room_assign ON hms_users.userId = hms_user_room_assign.user_id
+      LEFT JOIN hms_rooms ON hms_user_room_assign.hostel_id = hms_rooms.id where userId='${user_id}'`,
+        (err, result) => {
+          if (err) {
+            logger.error(err);
+          }
+          if (result !== undefined && result?.length > 0) {
+            conn.query(
+              `insert into hms_logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
+              (err, result) => {
+                if (err) {
+                  logger.error(err);
+                }
+                res.send({
+                  data: result[0],
+                  status: "success",
+                });
               }
-              res.send({
-                data: result[0],
-                status: "success",
-              });
-            }
-          );
-        } else {
-          res.send({ message: "Invalid Credentials", staus: "error" });
+            );
+          } else {
+            res.send({ message: "Invalid Credentials", staus: "error" });
+          }
         }
-      }
-    );
-  } else if (userType === "employee" || userType === "admin") {
-    connection.query(
-      `SELECT * FROM users_employee where emp_id='${user_id}'`,
-      (err, result) => {
-        if (err) {
-          logger.error(err);
-        }
-        if (result !== undefined && result?.length > 0) {
-          connection.query(
-            `insert into logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
-            (err, result) => {
-              if (err) {
-                logger.error(err);
+      );
+    } else if (userType === "employee" || userType === "admin") {
+      conn.query(
+        `SELECT * FROM hms_users_employee where emp_id='${user_id}'`,
+        (err, result) => {
+          if (err) {
+            logger.error(err);
+          }
+          if (result !== undefined && result?.length > 0) {
+            conn.query(
+              `insert into hms_logged_in_user (user_id,  date, user_type, is_logged_in) values('${user_id}','${date}','${userType}','${is_logged_in}')`,
+              (err, result) => {
+                if (err) {
+                  logger.error(err);
+                }
+                res.send({
+                  data: result[0],
+                  status: "success",
+                });
               }
-              res.send({
-                data: result[0],
-                status: "success",
-              });
-            }
-          );
-        } else {
-          res.send({ message: "Invalid Credentials", staus: "error" });
+            );
+          } else {
+            res.send({ message: "Invalid Credentials", staus: "error" });
+          }
         }
-      }
-    );
+      );
+    }
   }
 };
-exports.users = (req, res) => {
+exports.users = async (req, res) => {
   const { userId } = req.params;
   logger.info(userId);
   const date = DateGenerator();
-  console.log(date);
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
 
   connection.query(
-    `SELECT 
-    logged_in_user.*, 
-    COALESCE(users_employee.emp_id, users.userId) AS userId,
-    COALESCE(users_employee.emp_name, users.name) AS name,
-    COALESCE(users_employee.emp_email, users.email) AS email,
-    COALESCE(users_employee.branch_id, users.campus_branch) AS branchId
-  FROM logged_in_user 
-  LEFT JOIN users_employee ON logged_in_user.user_id = users_employee.emp_id
-  LEFT JOIN users ON logged_in_user.user_id = users.userId
-  WHERE logged_in_user.user_id = '${userId}' AND logged_in_user.date ='${date}'`,
+    `SELECT
+    hms_logged_in_user.*,
+    COALESCE(hms_users_employee.emp_id, hms_users.userId) AS userId,
+    COALESCE(hms_users_employee.emp_name, hms_users.name) AS name,
+    COALESCE(hms_users_employee.emp_email, hms_users.email) AS email,
+    COALESCE(hms_users_employee.branch_id, hms_users.campus_branch) AS branchId
+  FROM hms_logged_in_user
+  LEFT JOIN hms_users_employee ON hms_logged_in_user.user_id = hms_users_employee.emp_id
+  LEFT JOIN hms_users ON hms_logged_in_user.user_id = hms_users.userId
+  WHERE hms_logged_in_user.user_id = '${userId}' AND hms_logged_in_user.date ='${date}'`,
     (err, result) => {
       if (err) {
         logger.error(err);
@@ -125,9 +128,8 @@ exports.users = (req, res) => {
   );
 };
 
-exports.Hostel_Onboard_Request = (req, res) => {
+exports.Hostel_Onboard_Request = async (req, res) => {
   const io = getIO(); // Get the io instance from the socket.js file
-  console.log(req.body);
   const {
     userId,
     regd_no,
@@ -140,8 +142,10 @@ exports.Hostel_Onboard_Request = (req, res) => {
     image,
     branch_id,
   } = req.body;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `Insert into users (
+    `Insert into hms_users (
     userId,
     registration_no,
     name,
@@ -197,11 +201,13 @@ exports.Hostel_Onboard_Request = (req, res) => {
   );
 };
 
-exports.hostel_employee = (req, res) => {
+exports.hostel_employee = async (req, res) => {
   const { user_id, name, email, phone, image, role } = req.body;
   console.log(req.body);
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `Insert into users (
+    `Insert into hms_users (
     username,
     name,
     email,
@@ -231,13 +237,15 @@ exports.hostel_employee = (req, res) => {
   );
 };
 
-exports.getAllUser = (req, res) => {
+exports.getAllUser = async (req, res) => {
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
     `
-    SELECT users.*, user_room_assign.room_id,rooms.hostel_name
-    FROM users
-    LEFT JOIN user_room_assign ON users.userId = user_room_assign.user_id
-    LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id
+    SELECT hms_users.*, hms_user_room_assign.room_id,hms_rooms.hostel_name
+    FROM hms_users
+    LEFT JOIN hms_user_room_assign ON hms_users.userId = hms_user_room_assign.user_id
+    LEFT JOIN hms_rooms ON hms_user_room_assign.hostel_id = hms_rooms.id
   `,
     (err, result) => {
       if (err) {
@@ -257,11 +265,13 @@ exports.getAllUser = (req, res) => {
   );
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
   const { user_id } = req.body;
   const date = DateGenerator();
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   connection.query(
-    `update logged_in_user set is_logged_in='0' where user_id='${user_id}' AND date ='${date}' `,
+    `update hms_logged_in_user set is_logged_in='0' where user_id='${user_id}' AND date ='${date}' `,
     (err, result) => {
       if (err) {
         logger.error(err);
@@ -279,15 +289,16 @@ exports.logout = (req, res) => {
   );
 };
 
-exports.profile_info = (req, res) => {
+exports.profile_info = async (req, res) => {
   const { user_id, userType } = req.body;
-  console.log(user_id);
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
   if (userType === "student") {
     connection.query(
-      `SELECT users.* , user_room_assign.room_id,rooms.hostel_name
-    FROM users
-    LEFT JOIN user_room_assign ON users.userId = user_room_assign.user_id
-    LEFT JOIN rooms ON user_room_assign.hostel_id = rooms.id where userId='${user_id}'`,
+      `SELECT hms_users.* , hms_user_room_assign.room_id,hms_rooms.hostel_name
+    FROM hms_users
+    LEFT JOIN hms_user_room_assign ON hms_users.userId = hms_user_room_assign.user_id
+    LEFT JOIN hms_rooms ON hms_user_room_assign.hostel_id = hms_rooms.id where userId='${user_id}'`,
       (err, result) => {
         if (err) {
           logger.error(err);
@@ -304,7 +315,7 @@ exports.profile_info = (req, res) => {
     );
   } else {
     connection.query(
-      `SELECT * FROM users_employee where emp_id='${user_id}'`,
+      `SELECT * FROM hms_users_employee where emp_id='${user_id}'`,
       (err, result) => {
         if (err) {
           logger.error(err);
@@ -322,12 +333,14 @@ exports.profile_info = (req, res) => {
   }
 };
 
-exports.RemoveUser = (req, res) => {
+exports.RemoveUser = async (req, res) => {
   const { user_id } = req.body;
-  const query = `SELECT * FROM users WHERE userId = '${user_id}'`;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  const query = `SELECT * FROM hms_users WHERE userId = '${user_id}'`;
   const query1 = `CALL Delete_Archive_users(?)`;
   const query2 = `CALL DeleteAndArchiveUserRoomAssign(?)`;
-  const query3 = `SELECT * FROM user_room_assign WHERE user_id = '${user_id}'`;
+  const query3 = `SELECT * FROM hms_user_room_assign WHERE user_id = '${user_id}'`;
 
   connection.query(query, [user_id], (err, userResult) => {
     if (err) {
