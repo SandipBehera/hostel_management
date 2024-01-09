@@ -5,7 +5,7 @@ let io; // Declare a variable to store the io instance
 function initializeSocket(server) {
   io = socketIO(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: "http://13.58.217.203:3000",
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },
