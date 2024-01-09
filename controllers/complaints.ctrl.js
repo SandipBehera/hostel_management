@@ -18,7 +18,7 @@ exports.create_complaint = async (req, res) => {
   const Auth = req.session.Auth;
   const connection = await connectDatabase(Auth);
   connection.query(
-    "INSERT INTO complaints (issue_type, issued_by, hostel_id, floor_no, assigned_to, status, details, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO hms_complaints (issue_type, issued_by, hostel_id, floor_no, assigned_to, status, details, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     [
       issue_type,
       issued_by,
@@ -89,7 +89,7 @@ exports.update_complaint = async (req, res) => {
   const Auth = req.session.Auth;
   const connection = await connectDatabase(Auth);
   connection.query(
-    `UPDATE complaints SET status = '${status}',details= '${escapedDetails}', assigned_to='${assignedEmployee}' WHERE id = ${complaint_id}`,
+    `UPDATE hms_complaints SET status = '${status}',details= '${escapedDetails}', assigned_to='${assignedEmployee}' WHERE id = ${complaint_id}`,
     (err, result) => {
       if (err) {
         logger.error(err);
@@ -110,17 +110,17 @@ exports.get_complaints_by_id = async (req, res) => {
   const connection = await connectDatabase(Auth);
   connection.query(
     `SELECT DISTINCT
-    complaints.*,
+    hms_complaints.*,
     hms_users.name,
     hms_rooms.hostel_name,
     issued_by_employee.emp_name AS issued_by_name,
     assigned_to_employee.emp_name AS assigned_to_name
-FROM complaints
-LEFT JOIN hms_users ON complaints.issued_by = hms_users.userId
-LEFT JOIN hms_users_employee AS issued_by_employee ON complaints.issued_by = issued_by_employee.emp_id
-LEFT JOIN hms_rooms ON complaints.hostel_id = hms_rooms.id
-LEFT JOIN hms_users_employee AS assigned_to_employee ON complaints.assigned_to = assigned_to_employee.emp_id
-WHERE complaints.id = '${id}'`,
+FROM hms_complaints
+LEFT JOIN hms_users ON hms_complaints.issued_by = hms_users.userId
+LEFT JOIN hms_users_employee AS issued_by_employee ON hms_complaints.issued_by = issued_by_employee.emp_id
+LEFT JOIN hms_rooms ON hms_complaints.hostel_id = hms_rooms.id
+LEFT JOIN hms_users_employee AS assigned_to_employee ON hms_complaints.assigned_to = assigned_to_employee.emp_id
+WHERE hms_complaints.id = '${id}'`,
     (err, result) => {
       if (err) {
         logger.error(err);

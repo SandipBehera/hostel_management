@@ -214,7 +214,7 @@ exports.create_food_menu = async (req, res) => {
   const Auth = req.session.Auth;
   const connect = await connectDatabase(Auth);
   const duplicate = `SELECT * FROM hms_food_menu WHERE month = '${month}' AND year = '${year}' AND branch_id = '${branch_id}'`;
-  const query = `INSERT INTO hms_food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${hms_food_menu}', '${branch_id}')`;
+  const query = `INSERT INTO hms_food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${food_menu}', '${branch_id}')`;
   connect.query(duplicate, (err, result) => {
     if (err) {
       logger.error(err);
