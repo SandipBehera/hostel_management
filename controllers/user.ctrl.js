@@ -101,7 +101,7 @@ exports.users = async (req, res) => {
 
   const Auth = req.session.Auth;
   console.log("Users Auth", Auth);
-  if (Auth === undefined) {
+  if (Auth === undefined || Auth === "undefined") {
     const master_connection_config = {
       DB_USER: process.env.DB_USER,
       DB_HOST: process.env.DB_HOST,
@@ -146,7 +146,7 @@ exports.users = async (req, res) => {
                   status: "success",
                 });
               } else {
-                res.send({ message: "Invalid Credentials", status: "error" });
+                res.send({ message: "UnAuthorised user", status: "error" });
               }
             }
           );
@@ -290,7 +290,7 @@ exports.getAllUser = async (req, res) => {
           status: "success",
         });
       } else {
-        res.send({ message: "Invalid Credentials", status: "error" });
+        res.send({ message: "No User Found", status: "error" });
       }
     }
   );
