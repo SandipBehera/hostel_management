@@ -39,13 +39,13 @@ exports.get_student_room = async (req, res) => {
   try {
     const { branch_id } = req.params;
     const Auth = req.session.Auth;
+    console.log("Auth data", Auth);
     // Fetch hms_rooms
     const rooms = await queryDatabase(
       `SELECT * FROM hms_rooms WHERE branch_id = ?`,
       [branch_id],
       Auth
     );
-    console.log(rooms);
     // Extract unique room numbers
     const roomDetails = [
       ...new Set(
@@ -54,8 +54,6 @@ exports.get_student_room = async (req, res) => {
         )
       ),
     ];
-    console.log(roomDetails);
-
     // Fetch user details for all unique room numbers in a single query
     const usersDetails = await queryDatabase(
       `SELECT hms_user_room_assign.*, hms_users.name, hms_users.branch, hms_users.semesterYear 
