@@ -244,3 +244,25 @@ exports.assignHostel = async (req, res) => {
     }
   );
 };
+
+exports.checkEmployeeId = async (req, res) => {
+  const { employeeId } = req.params;
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+  connection.query(
+    `SELECT * FROM hms_users_employee WHERE emp_id = '${employeeId}'`,
+    (err, result) => {
+      if (err) {
+        logger.error(err);
+      }
+      if (result.length > 0) {
+        res.send({
+          message: "Employee Id Already Exist",
+          status: "error",
+        });
+      } else {
+        res.send({ message: "Employee Id Available", staus: "success" });
+      }
+    }
+  );
+};

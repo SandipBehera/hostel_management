@@ -154,7 +154,33 @@ exports.users = async (req, res) => {
       }
     );
   } else {
-    res.send({ message: "Invalid Credentials", status: "error" });
+    const connect = await connectDatabase(Auth);
+    connect.query(
+      `SELECT
+              hms_logged_in_user.*,
+              COALESCE(hms_users_employee.emp_id, hms_users.userId) AS userId,
+              COALESCE(hms_users_employee.emp_name, hms_users.name) AS name,
+              COALESCE(hms_users_employee.emp_email, hms_users.email) AS email,
+              COALESCE(hms_users_employee.branch_id, hms_users.campus_branch) AS branchId
+            FROM hms_logged_in_user
+            LEFT JOIN hms_users_employee ON hms_logged_in_user.user_id = hms_users_employee.emp_id
+            LEFT JOIN hms_users ON hms_logged_in_user.user_id = hms_users.userId
+            WHERE hms_logged_in_user.user_id = '${userId}' AND hms_logged_in_user.date ='${date}'`,
+      (err, result) => {
+        if (err) {
+          logger.error(err);
+        }
+        if (result) {
+          res.send({
+            data: result[0],
+            message: "User List",
+            status: "success",
+          });
+        } else {
+          res.send({ message: "UnAuthorised user", status: "error" });
+        }
+      }
+    );
   }
 };
 
