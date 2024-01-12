@@ -17,6 +17,7 @@ exports.create_rooms = async (req, res) => {
       res.send({ message: "Rooms created successfully", status: "success" });
     }
   });
+  connection.end();
 };
 
 exports.getRooms = async (req, res) => {
@@ -34,6 +35,7 @@ exports.getRooms = async (req, res) => {
       });
     }
   });
+  connection.end();
 };
 exports.get_student_room = async (req, res) => {
   try {
@@ -130,6 +132,7 @@ exports.Assign_rooms = async (req, res) => {
       });
     }
   });
+  connection.end();
 };
 
 exports.Get_Student_By_Room = async (req, res) => {
@@ -171,6 +174,7 @@ GROUP BY
       });
     }
   });
+  connection.end();
 };
 
 exports.Take_Attendance = async (req, res) => {
@@ -212,6 +216,7 @@ exports.Take_Attendance = async (req, res) => {
           });
         }
       });
+      connection.end();
     } else {
       // If no record exists, insert a new record
       const insertQuery = `
@@ -232,6 +237,7 @@ exports.Take_Attendance = async (req, res) => {
           });
         }
       });
+      connection.end();
     }
   });
 };
@@ -270,6 +276,7 @@ WHERE
       });
     }
   });
+  connection.end();
 };
 exports.updateAttandance = async (req, res) => {
   const { id, status, comments } = req.body;
@@ -288,6 +295,7 @@ exports.updateAttandance = async (req, res) => {
       });
     }
   });
+  connection.end();
 };
 
 exports.delete_room = async (req, res) => {
@@ -303,6 +311,7 @@ exports.delete_room = async (req, res) => {
       res.send({ message: "Room Deleted successfully", status: "success" });
     }
   });
+  connection.end();
 };
 
 exports.update_room = async (req, res) => {
@@ -319,4 +328,5 @@ exports.update_room = async (req, res) => {
       res.send({ message: "Room Updated successfully", status: "success" });
     }
   });
+  connection.end();
 };

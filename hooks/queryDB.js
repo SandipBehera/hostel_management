@@ -10,5 +10,6 @@ exports.queryDatabase = async (sql, params, session_auth) => {
         resolve(result);
       }
     });
+    connection.end();
   });
 };

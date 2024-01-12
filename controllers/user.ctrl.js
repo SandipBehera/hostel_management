@@ -292,6 +292,7 @@ exports.hostel_employee = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.getAllUser = async (req, res) => {
@@ -320,6 +321,7 @@ exports.getAllUser = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.logout = async (req, res) => {
@@ -344,6 +346,7 @@ exports.logout = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.profile_info = async (req, res) => {
@@ -370,6 +373,7 @@ exports.profile_info = async (req, res) => {
         }
       }
     );
+    connection.end();
   } else {
     connection.query(
       `SELECT * FROM hms_users_employee where emp_id='${user_id}'`,
@@ -387,6 +391,7 @@ exports.profile_info = async (req, res) => {
         }
       }
     );
+    connection.end();
   }
 };
 
@@ -449,6 +454,7 @@ exports.RemoveUser = async (req, res) => {
       res.send({ message: "User not found", status: "error" });
     }
   });
+  connection.end();
 };
 exports.get_session = async (req, res) => {
   const Auth = req.session.Auth;

@@ -76,6 +76,7 @@ router.get("/getEmployee", EmployeeController.getEmployee);
 router.post("/addEmployee", EmployeeController.addEmployee);
 router.post("/updateEmployee", EmployeeController.updateEmployee);
 router.post("/assignHostel", EmployeeController.assignHostel);
+router.get("/checkEmployeeId/:employeeId", EmployeeController.checkEmployeeId);
 
 //Hostel Config
 router.get("/getAllConfigs", HostelConfigController.getAllConfigs);

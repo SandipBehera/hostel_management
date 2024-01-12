@@ -18,6 +18,7 @@ exports.getAllConfigs = async (req, res) => {
       res.send({ message: "No Config Found", staus: "error" });
     }
   });
+  connection.end();
 };
 exports.addConfig = async (req, res) => {
   const { config_type, config_type_name, branch_id } = req.body;
@@ -108,6 +109,7 @@ exports.addConfig = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.getConfigByType = async (req, res) => {
@@ -132,4 +134,5 @@ exports.getConfigByType = async (req, res) => {
       }
     }
   );
+  connection.end();
 };

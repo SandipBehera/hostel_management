@@ -21,6 +21,7 @@ exports.getEmployee = async (req, res) => {
       res.send({ message: "No Employee Found", staus: "error" });
     }
   });
+  connection.end();
 };
 exports.addEmployee = async (req, res) => {
   const {
@@ -118,6 +119,7 @@ exports.addEmployee = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.updateEmployee = async (req, res) => {
@@ -204,6 +206,7 @@ exports.updateEmployee = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.assignHostel = async (req, res) => {
@@ -243,6 +246,7 @@ exports.assignHostel = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.checkEmployeeId = async (req, res) => {
@@ -265,4 +269,5 @@ exports.checkEmployeeId = async (req, res) => {
       }
     }
   );
+  connection.end();
 };

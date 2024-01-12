@@ -14,7 +14,7 @@ async function connectDatabase(db_config) {
     database: db_config.DB_NAME,
     password: db_config.DB_PASSWORD,
   };
-
+  // console.log("db_config", dyno_db);
   try {
     const connection = await sql.createConnection(dyno_db);
 
@@ -38,18 +38,18 @@ async function connectDatabase(db_config) {
     });
 
     // Handle connection close event
-    connection.on("end", () => {
-      console.log("Database connection was closed. Reconnecting...");
-      setTimeout(() => {
-        connection.connect((connectErr) => {
-          if (connectErr) {
-            console.error("Reconnection attempt failed:", connectErr);
-            return;
-          }
-          console.log("Successfully reconnected to the database.");
-        });
-      }, 2000);
-    });
+    // connection.on("end", () => {
+    //   console.log("Database connection was closed. Reconnecting...");
+    //   setTimeout(() => {
+    //     connection.connect((connectErr) => {
+    //       if (connectErr) {
+    //         console.error("Reconnection attempt failed:", connectErr);
+    //         return;
+    //       }
+    //       console.log("Successfully reconnected to the database.");
+    //     });
+    //   }, 2000);
+    // });
 
     return connection;
   } catch (err) {

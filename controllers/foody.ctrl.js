@@ -51,6 +51,7 @@ const fetchdataById = async (regd_no) => {
         }
       }
     );
+    connect.end();
   });
 };
 
@@ -96,6 +97,7 @@ const fetchUserData = async (regd_no) => {
         }
       }
     );
+    connect.end();
   });
 };
 exports.book = async (req, res) => {
@@ -124,6 +126,7 @@ exports.book = async (req, res) => {
             data: auth_code,
           });
         });
+        connect.end();
       } else {
         res.send({
           message: "Already Booked your food",
@@ -144,6 +147,7 @@ exports.book = async (req, res) => {
           data: studentData.result[0],
         });
       });
+      connect.end();
     }
   } catch (err) {
     logger.error(err);
@@ -170,6 +174,7 @@ exports.getCodes = async (req, res) => {
       res.send({ message: "Code Not Matched", status: "error" });
     }
   });
+  connect.end();
 };
 
 exports.checkCode = async (req, res) => {
@@ -202,6 +207,7 @@ exports.checkCode = async (req, res) => {
         res.send({ message: "Code Not Matched", status: "error" });
       }
     });
+    connect.end();
   } catch (error) {
     logger.error("Error:", error);
     res.status(500).send({ message: "Internal Server Error", status: "error" });
@@ -237,6 +243,7 @@ exports.create_food_menu = async (req, res) => {
       });
     }
   });
+  connect.end();
 };
 
 exports.get_last_menu = async (req, res) => {
@@ -253,6 +260,7 @@ exports.get_last_menu = async (req, res) => {
       data: result[0],
     });
   });
+  connect.end();
 };
 
 exports.get_all_menu = async (req, res) => {
@@ -269,6 +277,7 @@ exports.get_all_menu = async (req, res) => {
       data: result,
     });
   });
+  connect.end();
 };
 
 exports.today_bookings = async (req, res) => {
@@ -288,10 +297,13 @@ exports.today_bookings = async (req, res) => {
       data: result,
     });
   });
+  connect.end();
 };
 
-exports.update_menu = (req, res) => {
+exports.update_menu = async (req, res) => {
   const { id, menu_data } = req.body;
+  const Auth = req.session.Auth;
+  const connect = await connectDatabase(Auth);
   const query = `UPDATE hms_food_menu SET menu_data = '${menu_data}' WHERE id = '${id}'`;
   connect.query(query, (err, result) => {
     if (err) {
@@ -302,6 +314,7 @@ exports.update_menu = (req, res) => {
       status: "success",
     });
   });
+  connect.end();
 };
 
 exports.delete_menu = async (req, res) => {
@@ -318,6 +331,7 @@ exports.delete_menu = async (req, res) => {
       status: "success",
     });
   });
+  connect.end();
 };
 
 exports.food_booking_history = async (req, res) => {
@@ -341,4 +355,5 @@ exports.food_booking_history = async (req, res) => {
       });
     });
   });
+  connect.end();
 };

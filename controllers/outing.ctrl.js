@@ -21,6 +21,7 @@ exports.add_outing = async (req, res) => {
         .send({ message: "Outing created", status: "success" });
     }
   );
+  connection.end();
 };
 exports.get_outing = async (req, res) => {
   const Auth = req.session.Auth;
@@ -37,6 +38,7 @@ exports.get_outing = async (req, res) => {
       .status(200)
       .send({ message: "Outing fetched", status: "success", data: result });
   });
+  connection.end();
 };
 
 exports.approve_outing = async (req, res) => {
@@ -60,4 +62,5 @@ exports.approve_outing = async (req, res) => {
         .send({ message: "Outing approved", status: "success" });
     }
   );
+  connection.end();
 };

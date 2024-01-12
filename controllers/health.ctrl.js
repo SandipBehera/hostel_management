@@ -67,6 +67,7 @@ exports.add_patient = async (req, res) => {
         });
       }
     );
+    connection.end();
   });
 };
 
@@ -85,4 +86,5 @@ exports.getAllPatient = async (req, res) => {
       });
     }
   });
+  connection.end();
 };

@@ -19,6 +19,7 @@ exports.getAllStocks = async (req, res) => {
       res.send({ message: "No Stock Found", staus: "error" });
     }
   });
+  connection.end();
 };
 exports.addStock = async (req, res) => {
   const { purchased_from, branch_id, allItems, total_price } = req.body;
@@ -62,6 +63,7 @@ exports.addStock = async (req, res) => {
           }
         }
       );
+      connection.end();
     });
 
     promises.push(promise);
@@ -113,6 +115,7 @@ exports.createItem = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 exports.getItems = async (req, res) => {
   const Auth = req.session.Auth;
@@ -132,4 +135,5 @@ exports.getItems = async (req, res) => {
       res.send({ message: "No Item Found", staus: "error" });
     }
   });
+  connection.end();
 };

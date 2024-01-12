@@ -55,6 +55,7 @@ exports.create_complaint = async (req, res) => {
       });
     }
   );
+  connection.end();
 };
 exports.get_complaints = async (req, res) => {
   const Auth = req.session.Auth;
@@ -82,6 +83,7 @@ LEFT JOIN hms_users_employee AS issuer_employee_user ON hms_complaints.issued_by
       }
     }
   );
+  connection.end();
 };
 exports.update_complaint = async (req, res) => {
   const { complaint_id, status, content, assignedEmployee } = req.body;
@@ -103,6 +105,7 @@ exports.update_complaint = async (req, res) => {
       });
     }
   );
+  connection.end();
 };
 exports.get_complaints_by_id = async (req, res) => {
   const { id } = req.params;
@@ -142,4 +145,5 @@ WHERE hms_complaints.id = '${id}'`,
       }
     }
   );
+  connection.end();
 };
