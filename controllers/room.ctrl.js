@@ -130,9 +130,10 @@ exports.Assign_rooms = async (req, res) => {
           });
         }
       });
+      connection.end();
     }
   });
-  connection.end();
+  // connection.end();
 };
 
 exports.Get_Student_By_Room = async (req, res) => {

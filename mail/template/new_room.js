@@ -1,15 +1,17 @@
 const connection = require("../../utils/database");
 
-exports.RoomAssigend = (studentName, HostelName, RoomNo, callback) => {
+exports.RoomAssigend = async (studentName, HostelName, RoomNo, callback) => {
+  const Auth = req.session.Auth;
+  const connect = await connection(Auth);
   const query = `SELECT * FROM hms_rooms WHERE id = ${HostelName}`;
   const query2 = `SELECT * FROM hms_users WHERE userId = ?`;
 
-  connection.query(query, (err, result) => {
+  connect.query(query, (err, result) => {
     if (err) {
       console.log(err);
       callback(err, null);
     } else {
-      connection.query(query2, [studentName], (err, result2) => {
+      connect.query(query2, [studentName], (err, result2) => {
         if (err) {
           console.log(err);
           callback(err, null);
@@ -45,6 +47,7 @@ exports.RoomAssigend = (studentName, HostelName, RoomNo, callback) => {
           callback(null, content);
         }
       });
+      connect.end();
     }
   });
 };

@@ -46,9 +46,10 @@ exports.addConfig = async (req, res) => {
           (insertErr, insertResult) => {
             if (insertErr) {
               logger.error(insertErr);
-              res
-                .status(500)
-                .send({ message: "Internal Server Error", status: "error" });
+              res.status(500).send({
+                message: "Insert Internal Server Error",
+                status: "error",
+              });
               return;
             }
             res.send({
@@ -58,6 +59,7 @@ exports.addConfig = async (req, res) => {
             });
           }
         );
+        connection.end();
       } else {
         // Record exists, update config_type_name by appending new values
         const existingConfig = selectResult[0];
@@ -87,9 +89,10 @@ exports.addConfig = async (req, res) => {
             (updateErr, updateResult) => {
               if (updateErr) {
                 logger.error(updateErr);
-                res
-                  .status(500)
-                  .send({ message: "Internal Server Error", status: "error" });
+                res.status(500).send({
+                  message: "update Internal Server Error",
+                  status: "error",
+                });
                 return;
               }
               res.send({
@@ -106,10 +109,10 @@ exports.addConfig = async (req, res) => {
             .status(400)
             .send({ message: "Invalid JSON data", status: "error" });
         }
+        connection.end();
       }
     }
   );
-  connection.end();
 };
 
 exports.getConfigByType = async (req, res) => {
