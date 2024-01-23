@@ -10,6 +10,8 @@ const OutingController = require("../controllers/outing.ctrl");
 const EmployeeController = require("../controllers/employee.ctrl");
 const HostelConfigController = require("../controllers/hostelConfig.ctrl");
 const stockController = require("../controllers/stocks.ctrl");
+const AccountsController = require("../controllers/account.ctrl");
+
 //app Routes
 router.post("/login", userController.login);
 
@@ -91,4 +93,9 @@ router.post("/add_stock", stockController.addStock);
 router.post("/create_item", stockController.createItem);
 router.get("/get_items", stockController.getItems);
 router.get("/get_stock", stockController.getAllStocks);
+
+//Accounts
+router.post("/create_fine", AccountsController.createFine);
+router.get("/get_fine/:branch_id", AccountsController.getFine);
+
 module.exports = router;
