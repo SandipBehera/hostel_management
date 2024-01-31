@@ -49,6 +49,7 @@ exports.login = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 exports.web_login = async (req, res) => {
   const { user_id, date, userType, is_logged_in, Auth } = req.body;
@@ -84,6 +85,7 @@ exports.web_login = async (req, res) => {
           }
         }
       );
+      conn.end();
     } else if (userType === "employee" || userType === "admin") {
       conn.query(
         `SELECT * FROM hms_users_employee where emp_id='${user_id}'`,
@@ -109,6 +111,7 @@ exports.web_login = async (req, res) => {
           }
         }
       );
+      conn.end();
     }
   }
 };
@@ -171,6 +174,7 @@ exports.users = async (req, res) => {
         }
       }
     );
+    connection.end();
   } else {
     const connect = await connectDatabase(Auth);
     connect.query(
@@ -199,6 +203,7 @@ exports.users = async (req, res) => {
         }
       }
     );
+    connect.end();
   }
 };
 
@@ -274,6 +279,7 @@ exports.Hostel_Onboard_Request = async (req, res) => {
       }
     }
   );
+  connection.end();
 };
 
 exports.hostel_employee = async (req, res) => {
