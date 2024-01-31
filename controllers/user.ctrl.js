@@ -4,30 +4,48 @@ const { getIO } = require("../socket/socket");
 const logger = require("../logger");
 
 exports.login = async (req, res) => {
-  console.log(req.body);
-  const { userid, password } = req.body;
-  const Auth = req.session.Auth;
-  const connection = await connectDatabase(Auth);
+  const { userid, password, slug } = req.body;
+  const master_connection_config = {
+    DB_USER: process.env.DB_USER,
+    DB_HOST: process.env.DB_HOST,
+    DB_NAME: process.env.DB_NAME,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+  };
+  const connection = await connectDatabase(master_connection_config);
   connection.query(
-    `SELECT * FROM hms_users WHERE username = '${userid}' AND password = '${password}'`,
-    (err, result) => {
+    `SELECT * FROM  clients WHERE client_name='${slug}'`,
+    async (err, result) => {
       if (err) {
         logger.error(err);
       }
       if (result.length > 0) {
-        res.send({
-          data: {
-            name: result[0].name,
-            email: result[0].email,
-            phone: result[0].phone,
-            user_type: result[0].user_type,
-            user_name: result[0].username,
-          },
-          message: "Login Successfull",
-          status: "success",
-        });
-      } else {
-        res.send({ message: "Invalid Credentials", staus: "error" });
+        const connection_config = {
+          DB_USER: result[0].db_user,
+          DB_HOST: "13.58.144.48",
+          DB_NAME: result[0].client_db,
+          DB_PASSWORD: result[0].db_password,
+        };
+        req.session.Auth = connection_config;
+        const connect = await connectDatabase(connection_config);
+        connect.query(
+          `SELECT hms_users.*, student.* from student
+          LEFT JOIN hms_users ON student.roll_no = hms_users.userId
+          where student.roll_no='${userid}' AND student.usid_password='${password}'`,
+          (err, result) => {
+            if (err) {
+              logger.error(err);
+            }
+            if (result) {
+              res.send({
+                data: result[0],
+                message: "Login Successfull",
+                status: "success",
+              });
+            } else {
+              res.send({ message: "UnAuthorised user", status: "error" });
+            }
+          }
+        );
       }
     }
   );
