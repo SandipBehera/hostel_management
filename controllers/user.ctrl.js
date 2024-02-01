@@ -85,7 +85,6 @@ exports.web_login = async (req, res) => {
           }
         }
       );
-      conn.end();
     } else if (userType === "employee" || userType === "admin") {
       conn.query(
         `SELECT * FROM hms_users_employee where emp_id='${user_id}'`,
@@ -111,7 +110,6 @@ exports.web_login = async (req, res) => {
           }
         }
       );
-      conn.end();
     }
   }
 };
@@ -174,7 +172,6 @@ exports.users = async (req, res) => {
         }
       }
     );
-    connection.end();
   } else {
     const connect = await connectDatabase(Auth);
     connect.query(
@@ -203,7 +200,6 @@ exports.users = async (req, res) => {
         }
       }
     );
-    connect.end();
   }
 };
 
