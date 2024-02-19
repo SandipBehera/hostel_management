@@ -14,7 +14,13 @@ const server = Http.createServer(app);
 initializeSocket(server);
 // app.use(cors({ origin: "*" }));
 const corsOptions = {
-  origin: "http://13.58.217.203:3000",
+  origin: [
+    "http://localhost:3000",
+    "http://localhost",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "http://13.58.217.203:3000",
+  ],
   credentials: true,
 };
 
@@ -27,10 +33,11 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     secure: false, // Set to true if using HTTPS
     httpOnly: false,
-    sameSite: "lax",
+    sameSite: "lax", //lax,sameSite: "none", secure: true
     // Add other cookie options as needed
   })
 );
+app.use(Express.static(path.join(__dirname, "build")));
 
 const MasterRouter = require("./utils/routes");
 app.use(BodyParser.json());
