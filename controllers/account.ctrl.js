@@ -7,6 +7,8 @@ exports.createFine = async (req, res) => {
 
   const image = req.files?.upload_image || req.body.upload_image;
   const Auth = req.session.Auth;
+  // Convert studentid to an array if it's a single value
+  const studentIds = Array.isArray(studentid) ? studentid : [studentid];
   const connection = await connectDatabase(Auth);
   if (!image) {
     return res
@@ -27,7 +29,7 @@ exports.createFine = async (req, res) => {
   } else {
     upload_image = image;
   }
-  studentid.forEach((element) => {
+  studentIds.forEach((element) => {
     connection.query(
       `INSERT INTO hms_fine (studentid, fine, reason,image, branch_id) VALUES (?, ?, ?, ?,?)`,
       [element, fineAmount, reason, upload_image, branch_id],
@@ -63,10 +65,32 @@ exports.getFine = async (req, res) => {
           .status(500)
           .send({ message: "Error fetching fine", status: "error" });
       }
+      const totalAmount = result.reduce((sum, fine) => {
+        return sum + (Number(fine.fine) || 0); // Replace 'fine_amount' with the actual column name
+      }, 0);
 
-      return res
-        .status(200)
-        .send({ message: "Fine fetched", status: "success", data: result });
+      const paidAmount = result.reduce((sum, fine) => {
+        if (fine.status === "Paid") {
+          return sum + (Number(fine.fine) || 0); // Replace 'fine_amount' with the actual column name
+        }
+        return sum;
+      }, 0);
+
+      const remainingAmount = totalAmount - paidAmount;
+
+      // Add the calculated amounts to each row in the result
+      const calculatedResult = {
+        totalAmount,
+        paidAmount,
+        remainingAmount,
+      };
+
+      return res.status(200).send({
+        message: "Fine fetched",
+        status: "success",
+        data: result,
+        FineCalac: calculatedResult,
+      });
     }
   );
   connection.end();
