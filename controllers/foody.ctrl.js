@@ -217,33 +217,56 @@ exports.checkCode = async (req, res) => {
 exports.create_food_menu = async (req, res) => {
   const { month, year, food_menu, branch_id } = req.body;
   logger.error(food_menu);
-  const Auth = req.session.Auth;
-  const connect = await connectDatabase(Auth);
-  const duplicate = `SELECT * FROM hms_food_menu WHERE month = '${month}' AND year = '${year}' AND branch_id = '${branch_id}'`;
-  const query = `INSERT INTO hms_food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${food_menu}', '${branch_id}')`;
-  connect.query(duplicate, (err, result) => {
-    if (err) {
-      logger.error(err);
-    }
-    if (result.length > 0) {
+
+  try {
+    const Auth = req.session.Auth;
+    const connect = await connectDatabase(Auth);
+
+    const duplicate = `SELECT * FROM hms_food_menu WHERE month = '${month}' AND year = '${year}' AND branch_id = '${branch_id}'`;
+    const query = `INSERT INTO hms_food_menu (month, year, menu_data, branch_id) VALUES ('${month}', '${year}', '${food_menu}', '${branch_id}')`;
+
+    const duplicateResult = await new Promise((resolve, reject) => {
+      connect.query(duplicate, (err, result) => {
+        if (err) {
+          logger.error(err);
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+
+    if (duplicateResult.length > 0) {
       res.send({
         message: "Food Menu Already Created",
         status: "error",
       });
-      return;
     } else {
-      connect.query(query, (err, result) => {
-        if (err) {
-          logger.error(err);
-        }
-        res.send({
-          message: "Food Menu Created",
-          status: "success",
+      await new Promise((resolve, reject) => {
+        connect.query(query, (err, result) => {
+          if (err) {
+            logger.error(err);
+            reject(err);
+          } else {
+            resolve(result);
+          }
         });
       });
+
+      res.send({
+        message: "Food Menu Created",
+        status: "success",
+      });
     }
-  });
-  connect.end();
+  } catch (error) {
+    logger.error(error);
+    res.status(500).send({
+      message: "Internal Server Error",
+      status: "error",
+    });
+  } finally {
+    connect.end(); // Release the connection in the finally block
+  }
 };
 
 exports.get_last_menu = async (req, res) => {
