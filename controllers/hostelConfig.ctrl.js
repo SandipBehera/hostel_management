@@ -139,3 +139,45 @@ exports.getConfigByType = async (req, res) => {
   );
   connection.end();
 };
+
+exports.updateConfig = async (req, res) => {
+  const { config_type, config_type_name, branch_id } = req.body;
+  const removedUnderscore = config_type.replace(/_/g, " ");
+  const Auth = req.session.Auth;
+  const connection = await connectDatabase(Auth);
+
+  try {
+    connection.query(
+      "UPDATE hms_hostel_config SET config_type_name = ? WHERE config_type = ? AND branch_id = ?",
+      [config_type_name, config_type, branch_id],
+      (err, result) => {
+        if (err) {
+          logger.error(err);
+          return res
+            .status(500)
+            .send({ message: "Internal Server Error", status: "error" });
+        }
+
+        if (result.affectedRows === 0) {
+          // Handle the case where no rows were updated
+          return res.status(404).send({
+            message: "No rows were updated",
+            status: "error",
+          });
+        }
+
+        res.send({
+          data: result,
+          message: `${removedUnderscore} Config Updated`,
+          status: "success",
+        });
+      }
+    );
+  } catch (error) {
+    // Handle other errors if necessary
+    logger.error(error);
+    res.status(500).send({ message: "Internal Server Error", status: "error" });
+  } finally {
+    connection.end();
+  }
+};
