@@ -142,7 +142,8 @@ exports.getConfigByType = async (req, res) => {
 
 exports.updateConfig = async (req, res) => {
   const { config_type, config_type_name, branch_id } = req.body;
-  const removedUnderscore = config_type.replace(/_/g, " ");
+  // const removedUnderscore = config_type.replace(/_/g, " ");
+  console.log("first", req.body);
   const Auth = req.session.Auth;
   const connection = await connectDatabase(Auth);
 
@@ -168,7 +169,7 @@ exports.updateConfig = async (req, res) => {
 
         res.send({
           data: result,
-          message: `${removedUnderscore} Config Updated`,
+          message: `${config_type} Config Updated`,
           status: "success",
         });
       }
