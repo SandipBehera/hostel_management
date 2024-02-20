@@ -87,6 +87,7 @@ router.get(
   "/get_config_by_type/:config_type",
   HostelConfigController.getConfigByType
 );
+router.post("/updateConfig", HostelConfigController.updateConfig);
 
 //stock Managment
 router.post("/add_stock", stockController.addStock);
@@ -97,5 +98,6 @@ router.get("/get_stock", stockController.getAllStocks);
 //Accounts
 router.post("/create_fine", AccountsController.createFine);
 router.get("/get_fine/:branch_id", AccountsController.getFine);
+router.get("/get_fine_by_id/:studentid", AccountsController.getFineByStudent);
 
 module.exports = router;

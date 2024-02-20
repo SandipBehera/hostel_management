@@ -95,3 +95,50 @@ exports.getFine = async (req, res) => {
   );
   connection.end();
 };
+
+exports.getFineByStudent = async (req, res) => {
+  const Auth = req.session.Auth;
+  const { studentid } = req.params;
+  const connection = await connectDatabase(Auth);
+  connection.query(
+    `SELECT hms_fine.*,hms_users.name FROM hms_fine
+    LEFT JOIN hms_users ON hms_fine.studentid = hms_users.registration_no
+    where hms_fine.studentid = ?`,
+    [studentid],
+    (err, result) => {
+      if (err) {
+        logger.error(err);
+        return res
+          .status(500)
+          .send({ message: "Error fetching fine", status: "error" });
+      }
+
+      const totalAmount = result.reduce((sum, fine) => {
+        return sum + (Number(fine.fine) || 0); // Replace 'fine_amount' with the actual column name
+      }, 0);
+
+      const paidAmount = result.reduce((sum, fine) => {
+        if (fine.status === "Paid") {
+          return sum + (Number(fine.fine) || 0); // Replace 'fine_amount' with the actual column name
+        }
+        return sum;
+      }, 0);
+
+      const remainingAmount = totalAmount - paidAmount;
+
+      // Add the calculated amounts to each row in the result
+      const calculatedResult = {
+        totalAmount,
+        paidAmount,
+        remainingAmount,
+      };
+      return res.status(200).send({
+        message: "Fine fetched",
+        status: "success",
+        data: result,
+        FineCalac: calculatedResult,
+      });
+    }
+  );
+  connection.end();
+};
